@@ -3,3 +3,5 @@
 # Please adapt and uncomment the following lines:
 	name = karia
 	email = karia@side2.net
+[push]
+	default = simple
