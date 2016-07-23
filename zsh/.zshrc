@@ -127,3 +127,9 @@ if which rbenv > /dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
 
+
+# The next line updates PATH for the Google Cloud SDK.
+source '/Users/karia/google-cloud-sdk/path.zsh.inc'
+
+# The next line enables shell command completion for gcloud.
+source '/Users/karia/google-cloud-sdk/completion.zsh.inc'
