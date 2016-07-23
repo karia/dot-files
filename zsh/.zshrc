@@ -133,3 +133,6 @@ source '/Users/karia/google-cloud-sdk/path.zsh.inc'
 
 # The next line enables shell command completion for gcloud.
 source '/Users/karia/google-cloud-sdk/completion.zsh.inc'
+
+export NVM_DIR="/home/karia/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
