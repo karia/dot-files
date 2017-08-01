@@ -137,13 +137,7 @@ if which rbenv > /dev/null 2>&1; then
   eval "$(rbenv init -)"
 fi
 
-
-# The next line updates PATH for the Google Cloud SDK.
-source '/Users/karia/google-cloud-sdk/path.zsh.inc'
-
-# The next line enables shell command completion for gcloud.
-source '/Users/karia/google-cloud-sdk/completion.zsh.inc'
-
+# for nvm
 export NVM_DIR="/home/karia/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 
