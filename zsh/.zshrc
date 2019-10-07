@@ -146,4 +146,8 @@ autoload -Uz vcs_info
 # PROMPT変数内で変数参照する    
 setopt prompt_subst    
 
+# for pyenv
+export PYENV_ROOT=$HOME/.pyenv
+export PATH=$PYENV_ROOT/bin:$PATH
+eval "$(pyenv init -)"
 
