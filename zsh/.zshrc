@@ -141,6 +141,9 @@ fi
 export NVM_DIR="/home/karia/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 
+# for nodebrew
+export PATH=$HOME/.nodebrew/current/bin:$PATH
+
 # vcs_infoロード    
 autoload -Uz vcs_info    
 # PROMPT変数内で変数参照する    
