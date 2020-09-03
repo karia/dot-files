@@ -132,30 +132,16 @@ fi
 
 export TERM=xterm-256color
 
-# for rbenv
-if which rbenv > /dev/null 2>&1; then
-  eval "$(rbenv init -)"
-fi
-
-# for nvm
-export NVM_DIR="/home/karia/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-
-# for nodebrew
-export PATH=$HOME/.nodebrew/current/bin:$PATH
-
 # vcs_infoロード    
 autoload -Uz vcs_info    
 # PROMPT変数内で変数参照する    
 setopt prompt_subst    
-
-# for pyenv
-export PYENV_ROOT=$HOME/.pyenv
-export PATH=$PYENV_ROOT/bin:$PATH
-eval "$(pyenv init -)"
 
 # for mysql5.7
 export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"
 export LDFLAGS="-L/usr/local/opt/mysql@5.7/lib"
 export CPPFLAGS="-I/usr/local/opt/mysql@5.7/include"
 export PKG_CONFIG_PATH="/usr/local/opt/mysql@5.7/lib/pkgconfig"
+
+# for asdf
+. /usr/local/opt/asdf/asdf.sh
