@@ -1,7 +1,0 @@
-[ui]
-username = karia
-[extensions]
-hggit =
-purge =
-[git]
-authors = /Users/karia/.hg/authors.txt
