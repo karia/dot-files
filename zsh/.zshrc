@@ -146,3 +146,6 @@ export PKG_CONFIG_PATH="/usr/local/opt/mysql@5.7/lib/pkgconfig"
 # for asdf
 . $(brew --prefix asdf)/libexec/asdf.sh
 
+# for direnv
+eval "$(direnv hook zsh)"
+
