@@ -137,15 +137,19 @@ autoload -Uz vcs_info
 # PROMPT変数内で変数参照する    
 setopt prompt_subst    
 
-# for mysql5.7
-export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"
-export LDFLAGS="-L/usr/local/opt/mysql@5.7/lib"
-export CPPFLAGS="-I/usr/local/opt/mysql@5.7/include"
-export PKG_CONFIG_PATH="/usr/local/opt/mysql@5.7/lib/pkgconfig"
+case ${OSTYPE} in
+  darwin*)
+    # for asdf
+    . $(brew --prefix asdf)/libexec/asdf.sh
 
-# for asdf
-. $(brew --prefix asdf)/libexec/asdf.sh
+    # for direnv
+    eval "$(direnv hook zsh)"
 
-# for direnv
-eval "$(direnv hook zsh)"
+    # for mysql5.7
+    export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"
+    export LDFLAGS="-L/usr/local/opt/mysql@5.7/lib"
+    export CPPFLAGS="-I/usr/local/opt/mysql@5.7/include"
+    export PKG_CONFIG_PATH="/usr/local/opt/mysql@5.7/lib/pkgconfig"
+
+esac
 
