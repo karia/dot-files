@@ -5,3 +5,5 @@
 	email = karia@side2.net
 [push]
 	default = simple
+[init]
+	defaultBranch = main
