@@ -139,8 +139,10 @@ setopt prompt_subst
 
 case ${OSTYPE} in
   darwin*)
-    # for asdf
-    . $(brew --prefix asdf)/libexec/asdf.sh
+    # for asdf (install from homebrew)
+    # . $(brew --prefix asdf)/libexec/asdf.sh
+    # for asdf (install from ansible)
+    . "$HOME/.asdf/asdf.sh"
 
     # for direnv
     eval "$(direnv hook zsh)"
