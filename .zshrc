@@ -15,12 +15,6 @@ compinit
 autoload -U colors
 colors
 
-# from UNIX USER 2002.06
-# eval 'dircolors'
-
-# export LS_COLORS 'di=01;36'
-# zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
-
 # shared history (screen etc.)
 setopt share_history
 
@@ -52,28 +46,6 @@ bindkey '^N' history-beginning-search-forward
 #for C-w
 WORDCHARS="*?_-.[]~=&;!#$%^(){}<>"
 
-#editor settings
-# export EDITOR=emacs
-# PAGER=jless
-# export LC_CTYPE="ja_JP.eucJP"
-
-#java settings
-# export JAVA_HOME=/usr/local/diablo-jdk1.5.0
-# export CLASSPATH=.:/usr/local/diablo-jdk1.5.0/lib/tools.jar:/usr/local/tomcat5.5/common/lib/servlet-api.jar:/usr/local/share/java/classes/commons-codec.jar
-# export PATH=$PATH:$JAVA_HOME/bin
-
-#alias
-# alias ls="ls -wFG"
-# alias -g L="| $PAGER"
-# alias -g G="| grep"
-# alias -g W="| wc"
-# alias -g H="| head"
-# alias -g T="| tail"
-# alias -g ....="../.."
-# alias man="jman"
-# alias less="jless"
-
-#最初にスペースがあるとき履歴に残さない
 setopt HIST_IGNORE_SPACE
 
 #auto cd when directory
@@ -114,13 +86,6 @@ setopt mark_dirs
 setopt multios
 
 setopt print_eightbit
-
-#2010/02/21 not use screen
-
-# screen -xRU
-# if [ $TERM != screen ]; then
-#    exit
-# fi
 
 export EDITOR='vim'
 export SHELL='zsh'
