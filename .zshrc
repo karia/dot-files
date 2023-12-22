@@ -142,10 +142,10 @@ case ${OSTYPE} in
     # for asdf (install from homebrew)
     # . $(brew --prefix asdf)/libexec/asdf.sh
     # for asdf (install from ansible)
-    . "$HOME/.asdf/asdf.sh"
+    test -e "$HOME/.asdf/asdf.sh" && . "$HOME/.asdf/asdf.sh"
 
     # for direnv
-    eval "$(direnv hook zsh)"
+    command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 
     # for mysql5.7
     export PATH="$(brew --prefix mysql@5.7)/bin:$PATH"
