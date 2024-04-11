@@ -88,7 +88,7 @@ setopt multios
 setopt print_eightbit
 
 export EDITOR='vim'
-export SHELL='zsh'
+#export SHELL='zsh'
 
 # for tmuxinator
 if which mux > /dev/null 2>&1; then
