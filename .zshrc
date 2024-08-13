@@ -129,3 +129,9 @@ if [ -f '/Users/hisamatsuyoshiyuki/projects/others/google-cloud-sdk/path.zsh.inc
 if [ -f '/Users/hisamatsuyoshiyuki/projects/others/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/hisamatsuyoshiyuki/projects/others/google-cloud-sdk/completion.zsh.inc'; fi
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+# Go
+if [ -d "${HOME}/go" ]; then
+  export GOPATH="${HOME}/go"
+  export PATH="$PATH:${GOPATH}/bin"
+fi
