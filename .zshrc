@@ -18,20 +18,32 @@ colors
 # shared history (screen etc.)
 setopt share_history
 
-# prompt settings
-setopt prompt_subst
-# vcs_infoロード    
-autoload -Uz vcs_info    
-# PROMPT変数内で変数参照する    
-setopt prompt_subst    
+### prompt settings
 
-# vcsの表示    
-zstyle ':vcs_info:*' formats ' [%s] %F{green}%b%f'    
-zstyle ':vcs_info:*' actionformats ' [%s] %F{green}%b%f(%F{red}%a%f)'    
-# プロンプト表示直前にvcs_info呼び出し    
-precmd() { vcs_info }
-PROMPT='%n@%m${vcs_info_msg_0_}${WINDOW:+"[$WINDOW]"}%{$fg[cyan]%}%#%{$reset_color%} '
-RPROMPT='%{$fg[white]%}%~%{$fg[cyan]%}:%{$fg[white]%}%! %T%{$reset_color%}'
+# use powerlevel10k
+if [ -f "$(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme" ]; then
+  source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
+  # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+  # Initialization code that may require console input (password prompts, [y/n]
+  # confirmations, etc.) must go above this block; everything else may go below.
+  if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+  fi
+else
+  setopt prompt_subst
+  ## vcs_infoロード    
+  autoload -Uz vcs_info    
+  ## PROMPT変数内で変数参照する    
+  setopt prompt_subst    
+
+  ## vcsの表示    
+  zstyle ':vcs_info:*' formats ' [%s] %F{green}%b%f'    
+  zstyle ':vcs_info:*' actionformats ' [%s] %F{green}%b%f(%F{red}%a%f)'    
+  ## プロンプト表示直前にvcs_info呼び出し    
+  precmd() { vcs_info }
+  PROMPT='%n@%m${vcs_info_msg_0_}${WINDOW:+"[$WINDOW]"}%{$fg[cyan]%}%#%{$reset_color%} '
+  RPROMPT='%{$fg[white]%}%~%{$fg[cyan]%}:%{$fg[white]%}%! %T%{$reset_color%}'
+fi
 
 #keybaind
 bindkey -e
@@ -97,11 +109,6 @@ fi
 
 export TERM=xterm-256color
 
-# vcs_infoロード    
-autoload -Uz vcs_info    
-# PROMPT変数内で変数参照する    
-setopt prompt_subst    
-
 case ${OSTYPE} in
   darwin*)
     # for asdf (install from homebrew)
@@ -135,3 +142,6 @@ if [ -d "${HOME}/go" ]; then
   export GOPATH="${HOME}/go"
   export PATH="$PATH:${GOPATH}/bin"
 fi
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
