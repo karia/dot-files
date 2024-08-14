@@ -1,3 +1,29 @@
+# plugin manager
+
+if [ -d "${HOME}/.local/bin" ]; then export PATH="${HOME}/.local/bin:$PATH" ; fi
+
+if command -v sheldon >/dev/null 2>&1; then
+  eval "$(sheldon source)"
+fi
+
+# prompt settings (if not install powerlevel10k)
+
+if ! command -v p10k >/dev/null 2>&1; then
+  setopt prompt_subst
+  ## vcs_infoロード
+  autoload -Uz vcs_info
+  ## PROMPT変数内で変数参照する
+  setopt prompt_subst
+
+  ## vcsの表示
+  zstyle ':vcs_info:*' formats ' [%s] %F{green}%b%f'
+  zstyle ':vcs_info:*' actionformats ' [%s] %F{green}%b%f(%F{red}%a%f)'
+  ## プロンプト表示直前にvcs_info呼び出し
+  precmd() { vcs_info }
+  PROMPT='%n@%m${vcs_info_msg_0_}${WINDOW:+"[$WINDOW]"}%{$fg[cyan]%}%#%{$reset_color%} '
+  RPROMPT='%{$fg[white]%}%~%{$fg[cyan]%}:%{$fg[white]%}%! %T%{$reset_color%}'
+fi
+
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=100000
@@ -18,32 +44,6 @@ colors
 # shared history (screen etc.)
 setopt share_history
 
-### prompt settings
-
-# use powerlevel10k
-if [ -f "$(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme" ]; then
-  source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
-  # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-  # Initialization code that may require console input (password prompts, [y/n]
-  # confirmations, etc.) must go above this block; everything else may go below.
-  if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-  fi
-else
-  setopt prompt_subst
-  ## vcs_infoロード    
-  autoload -Uz vcs_info    
-  ## PROMPT変数内で変数参照する    
-  setopt prompt_subst    
-
-  ## vcsの表示    
-  zstyle ':vcs_info:*' formats ' [%s] %F{green}%b%f'    
-  zstyle ':vcs_info:*' actionformats ' [%s] %F{green}%b%f(%F{red}%a%f)'    
-  ## プロンプト表示直前にvcs_info呼び出し    
-  precmd() { vcs_info }
-  PROMPT='%n@%m${vcs_info_msg_0_}${WINDOW:+"[$WINDOW]"}%{$fg[cyan]%}%#%{$reset_color%} '
-  RPROMPT='%{$fg[white]%}%~%{$fg[cyan]%}:%{$fg[white]%}%! %T%{$reset_color%}'
-fi
 
 #keybaind
 bindkey -e
