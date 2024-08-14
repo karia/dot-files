@@ -4,21 +4,18 @@
 
 karia's dot-files!!!
 
-## Usage
+## Usage (Auto deploy for macOS)
+
+Use this script: https://github.com/karia/setup-mac
+
+## Usage (Manual deploy)
 
 ```
 cd ~
-git clone https://github.com/karia/dot-files.git
+git clone git@github.com:karia/dot-files.git
 
-ln -s ~/dot-files/zsh/.zsh* .
-ln -s ~/dot-files/git/.* .
-ln -s ~/dot-files/tmux/.* .
-ln -s ~/dot-files/vim/.* .
-ln -s ~/dot-files/vimperator/.* .
+ln -s ~/dot-files/.* .
 ```
 
 Sashimi Tampopo!!
 
-## ToDo
-
-Auto deploy
