@@ -9,3 +9,9 @@ plugin "terraform" {
     version = "0.9.1"
     source  = "github.com/terraform-linters/tflint-ruleset-terraform"
 }
+
+plugin "google" {
+    enabled = true
+    version = "0.30.0"
+    source  = "github.com/terraform-linters/tflint-ruleset-google"
+}
