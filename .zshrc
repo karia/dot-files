@@ -119,11 +119,11 @@ case ${OSTYPE} in
     # for direnv
     command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 
-    # for mysql5.7
-    export PATH="$(brew --prefix mysql@5.7)/bin:$PATH"
-    export LDFLAGS="-L$(brew --prefix mysql@5.7)/lib"
-    export CPPFLAGS="-I$(brew --prefix mysql@5.7)/include"
-    export PKG_CONFIG_PATH="$(brew --prefix mysql@5.7)/lib/pkgconfig"
+    # for mysql8.0
+    export PATH="$(brew --prefix mysql@8.0)/bin:$PATH"
+    export LDFLAGS="-L$(brew --prefix mysql@8.0)/lib"
+    export CPPFLAGS="-I$(brew --prefix mysql@8.0)/include"
+    export PKG_CONFIG_PATH="$(brew --prefix mysql@8.0)/lib/pkgconfig"
 
     # use GNU sed
     alias sed='gsed'
