@@ -143,6 +143,9 @@ if [ -d "${HOME}/go" ]; then
   export PATH="$PATH:${GOPATH}/bin"
 fi
 
+# Linuxbrew
+if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; fi
+
 # snap
 if [ -d "/snap" ]; then
   export PATH="/snap/bin:$PATH"
