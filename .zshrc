@@ -143,5 +143,10 @@ if [ -d "${HOME}/go" ]; then
   export PATH="$PATH:${GOPATH}/bin"
 fi
 
+# snap
+if [ -d "/snap" ]; then
+  export PATH="/snap/bin:$PATH"
+fi
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
