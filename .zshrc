@@ -143,6 +143,11 @@ if [ -d "${HOME}/go" ]; then
   export PATH="$PATH:${GOPATH}/bin"
 fi
 
+# aqua
+if [ -f "${HOME}/.local/share/aquaproj-aqua/bin/aqua" ]; then
+  export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
+fi
+
 # Linuxbrew
 if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; fi
 
