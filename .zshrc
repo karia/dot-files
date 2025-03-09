@@ -151,5 +151,10 @@ if [ -d "/snap" ]; then
   export PATH="/snap/bin:$PATH"
 fi
 
+# npm
+if [ -d "${HOME}/.npm-global/bin" ]; then
+  export PATH="${HOME}/.npm-global/bin:$PATH"
+fi
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
