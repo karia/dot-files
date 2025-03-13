@@ -111,13 +111,11 @@ export TERM=xterm-256color
 
 case ${OSTYPE} in
   darwin*)
-    # for asdf (install from homebrew)
-    # . $(brew --prefix asdf)/libexec/asdf.sh
-    # for asdf (install from ansible)
-    test -e "$HOME/.asdf/asdf.sh" && . "$HOME/.asdf/asdf.sh"
-
     # for direnv
     command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
+
+    # for mise
+    command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
 
     # for mysql8.0
     export PATH="$(brew --prefix mysql@8.0)/bin:$PATH"
