@@ -107,15 +107,15 @@ if which mux > /dev/null 2>&1; then
   source ~/.tmuxinator/tmuxinator.zsh
 fi
 
+# for mise
+command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
+
 export TERM=xterm-256color
 
 case ${OSTYPE} in
   darwin*)
     # for direnv
     command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
-
-    # for mise
-    command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
 
     # for mysql8.0
     export PATH="$(brew --prefix mysql@8.0)/bin:$PATH"
