@@ -139,14 +139,6 @@ case ${OSTYPE} in
     alias sed='gsed'
 esac
 
-# The next line updates PATH for the Google Cloud SDK.
-source_if_exists "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc"
-
-# The next line enables shell command completion for gcloud.
-source_if_exists "${HOME}/projects/others/google-cloud-sdk/completion.zsh.inc"
-
-source_if_exists "${HOME}/.iterm2_shell_integration.zsh"
-
 # Go
 if [[ -d "${HOME}/go" ]]; then
   export GOPATH="${HOME}/go"
@@ -161,6 +153,14 @@ add_path_if_exists "/snap/bin"
 
 # npm
 add_path_if_exists "${HOME}/.npm-global/bin"
+
+# The next line updates PATH for the Google Cloud SDK.
+source_if_exists "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc"
+
+# The next line enables shell command completion for gcloud.
+source_if_exists "${HOME}/projects/others/google-cloud-sdk/completion.zsh.inc"
+
+source_if_exists "${HOME}/.iterm2_shell_integration.zsh"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 source_if_exists "${HOME}/.p10k.zsh"
