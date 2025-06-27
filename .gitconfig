@@ -1,6 +1,7 @@
 # This is Git's per-user configuration file.
+# User settings are defined in separate files based on directory location
+# Default user configuration (personal)
 [user]
-# Please adapt and uncomment the following lines:
 	name = karia
 	email = karia@side2.net
 [push]
@@ -15,3 +16,7 @@
 	helper = !/usr/bin/gh auth git-credential
 [commit]
 	gpgsign = false
+
+# Override for work projects
+[includeIf "gitdir:~/projects/tsumikiinc/**/"]
+  path = ~/.gitconfig-work
