@@ -9,7 +9,6 @@ fi
 # prompt settings (if not install powerlevel10k)
 
 if ! command -v p10k >/dev/null 2>&1; then
-  setopt prompt_subst
   ## vcs_infoロード
   autoload -Uz vcs_info
   ## PROMPT変数内で変数参照する
