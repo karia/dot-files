@@ -112,6 +112,9 @@ command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
 
 export TERM=xterm-256color
 
+# for ghq
+alias cg='code "`ghq root`/`ghq list | fzf`"'
+
 case ${OSTYPE} in
   darwin*)
     # for direnv
