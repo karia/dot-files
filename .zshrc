@@ -8,7 +8,7 @@ source_if_exists() {
 
 # plugin manager
 
-if [ -d "${HOME}/.local/bin" ]; then export PATH="${HOME}/.local/bin:$PATH" ; fi
+if [[ -d "${HOME}/.local/bin" ]]; then export PATH="${HOME}/.local/bin:${PATH}" ; fi
 
 if command -v sheldon >/dev/null 2>&1; then
   eval "$(sheldon source)"
@@ -39,7 +39,7 @@ HISTSIZE=100000
 SAVEHIST=100000
 # End of lines configured by zsh-newuser-install
 # The following lines were added by compinstall
-zstyle :compinstall filename '~/.zshrc'
+zstyle :compinstall filename "${HOME}/.zshrc"
 
 #autocomplete
 autoload -Uz compinit
@@ -143,22 +143,22 @@ source_if_exists "${HOME}/projects/others/google-cloud-sdk/completion.zsh.inc"
 source_if_exists "${HOME}/.iterm2_shell_integration.zsh"
 
 # Go
-if [ -d "${HOME}/go" ]; then
+if [[ -d "${HOME}/go" ]]; then
   export GOPATH="${HOME}/go"
-  export PATH="$PATH:${GOPATH}/bin"
+  export PATH="${PATH}:${GOPATH}/bin"
 fi
 
 # Linuxbrew
-if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; fi
+if [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; fi
 
 # snap
-if [ -d "/snap" ]; then
-  export PATH="/snap/bin:$PATH"
+if [[ -d "/snap" ]]; then
+  export PATH="/snap/bin:${PATH}"
 fi
 
 # npm
-if [ -d "${HOME}/.npm-global/bin" ]; then
-  export PATH="${HOME}/.npm-global/bin:$PATH"
+if [[ -d "${HOME}/.npm-global/bin" ]]; then
+  export PATH="${HOME}/.npm-global/bin:${PATH}"
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
