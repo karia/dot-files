@@ -83,3 +83,8 @@ ln -sf ~/dot-files/.gitconfig-personal ~/.gitconfig-personal
 ## Common Commands
 
 Since this is a dotfiles repository, there are no build or test commands. The repository is deployed by creating symlinks to the configuration files in the user's home directory.
+
+## Development Guidelines
+
+- Always follow shellcheck recommendations when writing shell scripts
+- Ensure files end with a single newline character

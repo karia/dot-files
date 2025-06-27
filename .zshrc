@@ -1,6 +1,19 @@
+#!/bin/zsh
+# utility functions
+
+# source file if it exists
+source_if_exists() {
+  [[ -f "$1" ]] && source "$1"
+}
+
+# add directory to PATH if it exists
+add_path_if_exists() {
+  [[ -d "$1" ]] && export PATH="$1:${PATH}"
+}
+
 # plugin manager
 
-if [ -d "${HOME}/.local/bin" ]; then export PATH="${HOME}/.local/bin:$PATH" ; fi
+add_path_if_exists "${HOME}/.local/bin"
 
 if command -v sheldon >/dev/null 2>&1; then
   eval "$(sheldon source)"
@@ -9,7 +22,6 @@ fi
 # prompt settings (if not install powerlevel10k)
 
 if ! command -v p10k >/dev/null 2>&1; then
-  setopt prompt_subst
   ## vcs_infoロード
   autoload -Uz vcs_info
   ## PROMPT変数内で変数参照する
@@ -19,7 +31,9 @@ if ! command -v p10k >/dev/null 2>&1; then
   zstyle ':vcs_info:*' formats ' [%s] %F{green}%b%f'
   zstyle ':vcs_info:*' actionformats ' [%s] %F{green}%b%f(%F{red}%a%f)'
   ## プロンプト表示直前にvcs_info呼び出し
-  precmd() { vcs_info }
+  precmd() { 
+    vcs_info
+  }
   PROMPT='%n@%m${vcs_info_msg_0_}${WINDOW:+"[$WINDOW]"}%{$fg[cyan]%}%#%{$reset_color%} '
   RPROMPT='%{$fg[white]%}%~%{$fg[cyan]%}:%{$fg[white]%}%! %T%{$reset_color%}'
 fi
@@ -30,7 +44,7 @@ HISTSIZE=100000
 SAVEHIST=100000
 # End of lines configured by zsh-newuser-install
 # The following lines were added by compinstall
-zstyle :compinstall filename '~/.zshrc'
+zstyle :compinstall filename "${HOME}/.zshrc"
 
 #autocomplete
 autoload -Uz compinit
@@ -102,15 +116,13 @@ setopt print_eightbit
 export EDITOR='vim'
 #export SHELL='zsh'
 
-# for tmuxinator
-if which mux > /dev/null 2>&1; then
-  source ~/.tmuxinator/tmuxinator.zsh
-fi
-
 # for mise
 command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
 
 export TERM=xterm-256color
+
+# for ghq
+alias cg='code "`ghq root`/`ghq list | fzf`"'
 
 case ${OSTYPE} in
   darwin*)
@@ -127,37 +139,28 @@ case ${OSTYPE} in
     alias sed='gsed'
 esac
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc" ]; then . '/Users/hisamatsuyoshiyuki/projects/others/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f "${HOME}/projects/others/google-cloud-sdk/completion.zsh.inc" ]; then . '/Users/hisamatsuyoshiyuki/projects/others/google-cloud-sdk/completion.zsh.inc'; fi
-
-if [ -f "${HOME}/.iterm2_shell_integration.zsh" ]; then source "${HOME}/.iterm2_shell_integration.zsh"; fi
-
 # Go
-if [ -d "${HOME}/go" ]; then
+if [[ -d "${HOME}/go" ]]; then
   export GOPATH="${HOME}/go"
-  export PATH="$PATH:${GOPATH}/bin"
-fi
-
-# aqua
-if [ -f "${HOME}/.local/share/aquaproj-aqua/bin/aqua" ]; then
-  export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
+  export PATH="${PATH}:${GOPATH}/bin"
 fi
 
 # Linuxbrew
-if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; fi
+if [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; fi
 
 # snap
-if [ -d "/snap" ]; then
-  export PATH="/snap/bin:$PATH"
-fi
+add_path_if_exists "/snap/bin"
 
 # npm
-if [ -d "${HOME}/.npm-global/bin" ]; then
-  export PATH="${HOME}/.npm-global/bin:$PATH"
-fi
+add_path_if_exists "${HOME}/.npm-global/bin"
+
+# The next line updates PATH for the Google Cloud SDK.
+source_if_exists "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc"
+
+# The next line enables shell command completion for gcloud.
+source_if_exists "${HOME}/projects/others/google-cloud-sdk/completion.zsh.inc"
+
+source_if_exists "${HOME}/.iterm2_shell_integration.zsh"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+source_if_exists "${HOME}/.p10k.zsh"
