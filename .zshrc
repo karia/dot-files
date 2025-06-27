@@ -19,7 +19,9 @@ if ! command -v p10k >/dev/null 2>&1; then
   zstyle ':vcs_info:*' formats ' [%s] %F{green}%b%f'
   zstyle ':vcs_info:*' actionformats ' [%s] %F{green}%b%f(%F{red}%a%f)'
   ## プロンプト表示直前にvcs_info呼び出し
-  precmd() { vcs_info }
+  precmd() { 
+    vcs_info
+  }
   PROMPT='%n@%m${vcs_info_msg_0_}${WINDOW:+"[$WINDOW]"}%{$fg[cyan]%}%#%{$reset_color%} '
   RPROMPT='%{$fg[white]%}%~%{$fg[cyan]%}:%{$fg[white]%}%! %T%{$reset_color%}'
 fi
