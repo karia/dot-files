@@ -1,3 +1,11 @@
+#!/bin/zsh
+# utility functions
+
+# source file if it exists
+source_if_exists() {
+  [[ -f "$1" ]] && source "$1"
+}
+
 # plugin manager
 
 if [ -d "${HOME}/.local/bin" ]; then export PATH="${HOME}/.local/bin:$PATH" ; fi
@@ -127,12 +135,12 @@ case ${OSTYPE} in
 esac
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc" ]; then . '/Users/hisamatsuyoshiyuki/projects/others/google-cloud-sdk/path.zsh.inc'; fi
+source_if_exists "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc"
 
 # The next line enables shell command completion for gcloud.
-if [ -f "${HOME}/projects/others/google-cloud-sdk/completion.zsh.inc" ]; then . '/Users/hisamatsuyoshiyuki/projects/others/google-cloud-sdk/completion.zsh.inc'; fi
+source_if_exists "${HOME}/projects/others/google-cloud-sdk/completion.zsh.inc"
 
-if [ -f "${HOME}/.iterm2_shell_integration.zsh" ]; then source "${HOME}/.iterm2_shell_integration.zsh"; fi
+source_if_exists "${HOME}/.iterm2_shell_integration.zsh"
 
 # Go
 if [ -d "${HOME}/go" ]; then
@@ -154,4 +162,4 @@ if [ -d "${HOME}/.npm-global/bin" ]; then
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+source_if_exists "${HOME}/.p10k.zsh"
