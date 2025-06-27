@@ -104,11 +104,6 @@ setopt print_eightbit
 export EDITOR='vim'
 #export SHELL='zsh'
 
-# for tmuxinator
-if which mux > /dev/null 2>&1; then
-  source ~/.tmuxinator/tmuxinator.zsh
-fi
-
 # for mise
 command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
 
