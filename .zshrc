@@ -6,9 +6,14 @@ source_if_exists() {
   [[ -f "$1" ]] && source "$1"
 }
 
+# add directory to PATH if it exists
+add_path_if_exists() {
+  [[ -d "$1" ]] && export PATH="$1:${PATH}"
+}
+
 # plugin manager
 
-if [[ -d "${HOME}/.local/bin" ]]; then export PATH="${HOME}/.local/bin:${PATH}" ; fi
+add_path_if_exists "${HOME}/.local/bin"
 
 if command -v sheldon >/dev/null 2>&1; then
   eval "$(sheldon source)"
@@ -152,14 +157,10 @@ fi
 if [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; fi
 
 # snap
-if [[ -d "/snap" ]]; then
-  export PATH="/snap/bin:${PATH}"
-fi
+add_path_if_exists "/snap/bin"
 
 # npm
-if [[ -d "${HOME}/.npm-global/bin" ]]; then
-  export PATH="${HOME}/.npm-global/bin:${PATH}"
-fi
+add_path_if_exists "${HOME}/.npm-global/bin"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 source_if_exists "${HOME}/.p10k.zsh"
