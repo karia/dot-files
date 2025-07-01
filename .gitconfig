@@ -18,5 +18,5 @@
 	gpgsign = false
 
 # Override for work projects
-[includeIf "gitdir:~/projects/tsumikiinc/**/"]
+[includeIf "gitdir:~/ghq/github.com/tsumikiinc/**/"]
   path = ~/.gitconfig-work
