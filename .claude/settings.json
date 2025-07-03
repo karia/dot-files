@@ -11,5 +11,18 @@
       "Bash(ls:*)"
     ],
     "deny": []
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "say \"Claude Codeがタスクを完了しました\""
+          }
+        ]
+      }
+    ]
   }
 }
