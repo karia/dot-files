@@ -1,8 +1,10 @@
 .config/gcloud
 .config/iterm2
 .config/raycast
+.config/gh/hosts.yml
 .config/github-copilot
 .claude/ide/
 .claude/projects/
 .claude/statsig/
 .claude/todos/
+.claude/.credentials.json
