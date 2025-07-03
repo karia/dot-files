@@ -2,6 +2,8 @@
 ruby = "3.3.7"
 pinact = "latest"
 node = "lts"
+ghq = "latest"
+fzf = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
