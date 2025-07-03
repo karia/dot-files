@@ -19,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "say \"Claude Codeがタスクを完了しました\""
+            "command": "if [[ \"$(uname)\" == \"Darwin\" ]]; then say \"Claude Codeがタスクを完了しました\"; fi"
           }
         ]
       }
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "say \"Claude Codeからの通知があります\""
+            "command": "if [[ \"$(uname)\" == \"Darwin\" ]]; then say \"Claude Codeからの通知があります\"; fi"
           }
         ]
       }
