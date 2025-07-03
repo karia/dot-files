@@ -23,6 +23,17 @@
           }
         ]
       }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "say \"Claude Codeからの通知があります\""
+          }
+        ]
+      }
     ]
   }
 }
