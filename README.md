@@ -18,4 +18,3 @@ ln -s ~/dot-files/.* .
 ```
 
 Sashimi Tampopo!!
-

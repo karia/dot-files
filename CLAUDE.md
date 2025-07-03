@@ -10,7 +10,7 @@ This is a personal dotfiles repository containing configuration files for variou
 
 - `.zshrc`: Zsh shell configuration with custom prompt, keybindings, and path settings
 - `.vimrc`: Vim editor configuration
-- `.tmux.conf`: Tmux terminal multiplexer configuration  
+- `.tmux.conf`: Tmux terminal multiplexer configuration
 - `.gitconfig`: Git configuration with conditional includes for different environments
 - `.gitconfig-work`: Work-specific Git configuration (email: @tsumikiinc.com)
 - `.gitconfig-personal`: Personal Git configuration (email: @side2.net)
