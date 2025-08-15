@@ -18,6 +18,7 @@
       "Bash(mise ls:*)",
       "Bash(mise list:*)",
       "Bash(mkdir:*)",
+      "Bash(open:*)",
       "Bash(pinact:*)",
       "Bash(pre-commit run:*)",
       "Bash(yamllint:*)"
@@ -47,5 +48,8 @@
         ]
       }
     ]
+  },
+  "feedbackSurveyState": {
+    "lastShownTime": 1754061737663
   }
 }
