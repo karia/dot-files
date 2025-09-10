@@ -4,6 +4,7 @@ pinact = "latest"
 node = "lts"
 ghq = "latest"
 fzf = "latest"
+claude = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
