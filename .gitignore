@@ -9,3 +9,8 @@
 .claude/todos/
 .claude/.credentials.json
 .claude/shell-snapshots/
+.claude/debug/
+.claude/file-history/
+.claude/history.jsonl
+.claude/plugins/
+.config/configstore/
