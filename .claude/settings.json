@@ -32,7 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$(uname)\" == \"Darwin\" ]]; then say \"Claude Codeがタスクを完了しました\"; fi"
+            "command": "if [[ \"$(uname)\" == \"Darwin\" ]]; then afplay -v 0.3 /Users/hisamatsuyoshiyuki/Documents/313.wav; fi"
           }
         ]
       }
@@ -43,13 +43,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$(uname)\" == \"Darwin\" ]]; then say \"Claude Codeからの通知があります\"; fi"
+            "command": "if [[ \"$(uname)\" == \"Darwin\" ]]; then afplay -v 0.8 /Users/hisamatsuyoshiyuki/Documents/icq_message.wav; fi"
           }
         ]
       }
     ]
   },
-  "alwaysThinkingEnabled": false,
   "feedbackSurveyState": {
     "lastShownTime": 1754061737663
   }
