@@ -13,4 +13,12 @@
 .claude/file-history/
 .claude/history.jsonl
 .claude/plugins/
+.claude/cache/
+.claude/paste-cache/
+.claude/plans/
+.claude/stats-cache.json
+.claude/tasks/
+.claude/telemetry/
+.claude/settings.local.json
+.claude/session-env/
 .config/configstore/
