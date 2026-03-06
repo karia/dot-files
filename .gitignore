@@ -3,6 +3,12 @@
 .config/raycast
 .config/gh/hosts.yml
 .config/github-copilot
+.claude/.update.lock
+.claude/backups/
+.config/Code/
+.config/go/
+.config/google-chrome-for-testing/
+.config/wslu/
 .claude/ide/
 .claude/projects/
 .claude/statsig/

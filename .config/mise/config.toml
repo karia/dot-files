@@ -5,6 +5,10 @@ node = "lts"
 ghq = "latest"
 fzf = "latest"
 claude = "latest"
+gemini = "latest"
+"npm:@github/copilot" = "latest"
+"npm:@openai/codex" = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
+experimental = true
