@@ -8,6 +8,8 @@ claude = "latest"
 gemini = "latest"
 "npm:@github/copilot" = "latest"
 "npm:@openai/codex" = "latest"
+"npm:prh" = "latest"
+"npm:prh-languageserver" = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
