@@ -18,5 +18,5 @@ git commitするとき以下に注意すること
 IssueやPRを作成するとき以下に注意すること
 
 * descriptionの記述量をミニマムに保つこと。多すぎると読んでくれません。特にコードを読めばわかることは記述しない。
-* tsumikiinc organizationに対するPR/Issueの場合に限り、レビュアーが日本人のため、title,descriptionの項目を日本語で記述すること
+* PR/Issueの言語は、リポジトリが `karia/` 配下の場合は英語で記述すること。それ以外のorganizationではレビュアーが日本人のため、title,descriptionの項目を日本語で記述すること
 * Issue/PRを作成完了したら、内容を確認するためopenコマンドを使ってURLを開くこと
