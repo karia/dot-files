@@ -1,14 +1,15 @@
 [tools]
-pinact = "latest"
-node = "lts"
-ghq = "latest"
-fzf = "latest"
 claude = "latest"
+fzf = "latest"
 gemini = "latest"
+ghq = "latest"
+node = "lts"
 "npm:@github/copilot" = "latest"
 "npm:@openai/codex" = "latest"
 "npm:prh" = "latest"
 "npm:prh-languageserver" = "latest"
+pinact = "latest"
+uv = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
