@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$(uname)\" == \"Darwin\" ]]; then afplay -v 0.3 /Users/hisamatsuyoshiyuki/Documents/icq_Message.wav; fi"
+            "command": "if [[ \"$(uname)\" == \"Darwin\" ]]; then afplay -v 0.3 ~/Documents/icq_Message.wav; fi"
           }
         ]
       }
@@ -68,7 +68,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$(uname)\" == \"Darwin\" ]]; then afplay -v 0.8 /Users/hisamatsuyoshiyuki/Documents/icq_System.wav; fi"
+            "command": "if [[ \"$(uname)\" == \"Darwin\" ]]; then afplay -v 0.8 ~/Documents/icq_System.wav; fi"
           }
         ]
       }
