@@ -9,6 +9,7 @@ gemini = "latest"
 "npm:@openai/codex" = "latest"
 "npm:prh" = "latest"
 "npm:prh-languageserver" = "latest"
+uv = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
