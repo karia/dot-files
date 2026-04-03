@@ -22,6 +22,9 @@
 .claude/cache/
 .claude/paste-cache/
 .claude/plans/
+.claude/policy-limits.json
+.claude/remote-settings.json
+.claude/sessions/
 .claude/stats-cache.json
 .claude/tasks/
 .claude/telemetry/
