@@ -126,14 +126,14 @@ alias cg='code "`ghq root`/`ghq list | fzf`"'
 
 case ${OSTYPE} in
   darwin*)
+    # for anyenv
+    command -v anyenv >/dev/null 2>&1 && eval "$(anyenv init -)"
+
     # for direnv
     command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 
-    # for mysql8.0
-    export PATH="$(brew --prefix mysql@8.0)/bin:$PATH"
-    export LDFLAGS="-L$(brew --prefix mysql@8.0)/lib"
-    export CPPFLAGS="-I$(brew --prefix mysql@8.0)/include"
-    export PKG_CONFIG_PATH="$(brew --prefix mysql@8.0)/lib/pkgconfig"
+    # for mysql-client 8.4
+    export PATH="$HOMEBREW_PREFIX/opt/mysql-client@8.4/bin:$PATH"
 
     # use GNU sed
     alias sed='gsed'
