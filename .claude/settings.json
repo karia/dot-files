@@ -52,7 +52,12 @@
       "Bash(trivy:*)",
       "Bash(yamllint:*)"
     ],
-    "deny": []
+    "deny": [],
+    "ask": [
+      "Bash(git push --force:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(git push -f:*)"
+    ]
   },
   "hooks": {
     "Stop": [
