@@ -164,3 +164,13 @@ source_if_exists "${HOME}/.iterm2_shell_integration.zsh"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 source_if_exists "${HOME}/.p10k.zsh"
+
+# pnpm
+if command -v pnpm >/dev/null 2>&1; then
+  export PNPM_HOME="${HOME}/Library/pnpm"
+  case ":$PATH:" in
+    *":$PNPM_HOME:"*) ;;
+    *) export PATH="$PNPM_HOME:$PATH" ;;
+  esac
+fi
+# pnpm end
