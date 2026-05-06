@@ -32,3 +32,5 @@
 .claude/settings.local.json
 .claude/session-env/
 .config/configstore/
+.claude/mcp-needs-auth-cache.json
+.config/ookla/
