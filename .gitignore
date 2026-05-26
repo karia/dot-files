@@ -34,3 +34,4 @@
 .config/configstore/
 .claude/mcp-needs-auth-cache.json
 .config/ookla/
+.config/mimeapps.list
