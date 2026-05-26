@@ -151,9 +151,6 @@ if [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then eval "$(/home/linuxbrew/
 # snap
 add_path_if_exists "/snap/bin"
 
-# npm
-add_path_if_exists "${HOME}/.npm-global/bin"
-
 # The next line updates PATH for the Google Cloud SDK.
 source_if_exists "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc"
 
