@@ -7,7 +7,7 @@ node = "lts"
 "npm:prh" = "latest"
 "npm:prh-languageserver" = "latest"
 pinact = "latest"
-pnpm = "latest"
+"npm:pnpm" = "latest"
 uv = "latest"
 
 [settings]
