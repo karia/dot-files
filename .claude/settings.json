@@ -1,7 +1,4 @@
 {
-  "env": {
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
-  },
   "permissions": {
     "allow": [
       "Bash(actionlint:*)",
@@ -59,6 +56,7 @@
       "Bash(git push -f:*)"
     ]
   },
+  "model": "opus",
   "hooks": {
     "Stop": [
       {
@@ -83,10 +81,16 @@
       }
     ]
   },
-  "feedbackSurveyState": {
-    "lastShownTime": 1754061737663
+  "statusLine": {
+    "type": "command",
+    "command": "bash /home/karia/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true
+  },
+  "effortLevel": "high",
+  "agentPushNotifEnabled": true,
+  "feedbackSurveyState": {
+    "lastShownTime": 1754061737663
   }
 }
