@@ -83,7 +83,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash /home/karia/.claude/statusline-command.sh"
+    "command": "bash ~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true
