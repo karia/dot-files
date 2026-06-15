@@ -5,6 +5,7 @@
 .config/gh/hosts.yml
 .config/github-copilot
 .claude/.update.lock
+.claude/.last-cleanup
 .claude/backups/
 .config/Code/
 .config/go/
