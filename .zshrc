@@ -116,9 +116,6 @@ setopt print_eightbit
 export EDITOR='vim'
 #export SHELL='zsh'
 
-# for mise
-command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
-
 export TERM=xterm-256color
 
 # for ghq
@@ -168,3 +165,6 @@ if command -v pnpm >/dev/null 2>&1; then
   esac
 fi
 # pnpm end
+
+# for mise
+command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
