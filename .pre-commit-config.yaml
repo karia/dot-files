@@ -9,7 +9,7 @@ repos:
     rev: v0.10.0.1
     hooks:
       - id: shellcheck
-        exclude: \.zshrc$
+        exclude: \.zsh(rc|env)$
   - repo: https://github.com/google/yamlfmt
     rev: v0.13.0
     hooks:
