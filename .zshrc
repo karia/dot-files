@@ -1,19 +1,9 @@
 #!/bin/zsh
-# utility functions
-
-# source file if it exists
-source_if_exists() {
-  [[ -f "$1" ]] && source "$1"
-}
-
-# add directory to PATH if it exists
-add_path_if_exists() {
-  [[ -d "$1" ]] && export PATH="$1:${PATH}"
-}
+# Interactive-only settings. PATH and environment live in .zshenv
+# (which is sourced for every shell, including non-interactive ones).
+# Helper functions source_if_exists / add_path_if_exists are defined there.
 
 # plugin manager
-
-add_path_if_exists "${HOME}/.local/bin"
 
 if command -v sheldon >/dev/null 2>&1; then
   eval "$(sheldon source)"
@@ -113,7 +103,6 @@ setopt multios
 
 setopt print_eightbit
 
-export EDITOR='vim'
 #export SHELL='zsh'
 
 export TERM=xterm-256color
@@ -126,27 +115,9 @@ case ${OSTYPE} in
     # for direnv
     command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 
-    # for mysql-client 8.4
-    export PATH="$HOMEBREW_PREFIX/opt/mysql-client@8.4/bin:$PATH"
-
     # use GNU sed
     alias sed='gsed'
 esac
-
-# Go
-if [[ -d "${HOME}/go" ]]; then
-  export GOPATH="${HOME}/go"
-  export PATH="${PATH}:${GOPATH}/bin"
-fi
-
-# Linuxbrew
-if [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; fi
-
-# snap
-add_path_if_exists "/snap/bin"
-
-# The next line updates PATH for the Google Cloud SDK.
-source_if_exists "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc"
 
 # The next line enables shell command completion for gcloud.
 source_if_exists "${HOME}/projects/others/google-cloud-sdk/completion.zsh.inc"
@@ -155,16 +126,6 @@ source_if_exists "${HOME}/.iterm2_shell_integration.zsh"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 source_if_exists "${HOME}/.p10k.zsh"
-
-# pnpm
-if command -v pnpm >/dev/null 2>&1; then
-  export PNPM_HOME="${HOME}/Library/pnpm"
-  case ":$PATH:" in
-    *":$PNPM_HOME:"*) ;;
-    *) export PATH="$PNPM_HOME:$PATH" ;;
-  esac
-fi
-# pnpm end
 
 # for mise
 command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
