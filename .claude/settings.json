@@ -93,5 +93,6 @@
   "agentPushNotifEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754061737663
-  }
+  },
+  "inputNeededNotifEnabled": true
 }
