@@ -18,3 +18,7 @@ auto_switch = false
 
 [ui]
 agent_panel_sort = "spaces"
+
+# エージェント完了を OS 通知で受け取る
+[ui.toast]
+delivery = "system"
