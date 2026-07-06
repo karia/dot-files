@@ -1,7 +1,11 @@
 #!/bin/zsh
 # Interactive-only settings. PATH and environment live in .zshenv
 # (which is sourced for every shell, including non-interactive ones).
-# Helper functions source_if_exists / add_path_if_exists are defined there.
+
+# shared helpers -- intentionally duplicated in .zshenv so each file
+# works standalone even when the other is missing (e.g. symlink not created)
+source_if_exists() { [[ -f "$1" ]] && source "$1"; }
+add_path_if_exists() { [[ -d "$1" ]] && export PATH="$1:${PATH}"; }
 
 # plugin manager
 
