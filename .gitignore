@@ -36,3 +36,6 @@
 .claude/mcp-needs-auth-cache.json
 .config/ookla/
 .config/mimeapps.list
+.config/herdr/*.log
+.config/herdr/*.sock
+.config/herdr/session.json
