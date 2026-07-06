@@ -1,5 +1,9 @@
 theme = GitHub Dark Default
-font-family = "UDEV Gothic 35NF"
+font-family = "UDEV Gothic NF"
+
+# 非Retina/等倍ディスプレイでのフォント細り・潰れ対策（macOS 専用）
+font-thicken = true
+font-thicken-strength = 128
 
 # 前回終了時のウィンドウ位置・サイズ・タブ/split を復元（macOS 専用）
 window-save-state = always
