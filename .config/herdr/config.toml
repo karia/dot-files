@@ -13,7 +13,7 @@ navigate_workspace_up   = ["up", "k"]
 navigate_workspace_down = ["down", "j"]
 
 [theme]
-name = "catppuccin-latte"
+name = "terminal"
 auto_switch = false
 
 [ui]
