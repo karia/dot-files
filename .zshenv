@@ -4,7 +4,8 @@
 # Put PATH and environment settings here so tools resolve even when
 # .zshrc (interactive-only) and .zprofile (login-only) are NOT sourced.
 
-# shared helpers (also used by .zshrc)
+# shared helpers -- intentionally duplicated in .zshrc so each file
+# works standalone even when the other is missing (e.g. symlink not created)
 source_if_exists() { [[ -f "$1" ]] && source "$1"; }
 add_path_if_exists() { [[ -d "$1" ]] && export PATH="$1:${PATH}"; }
 
