@@ -1,1 +1,5 @@
 theme = GitHub Dark Default
+font-family = "UDEV Gothic 35NF"
+
+# 前回終了時のウィンドウ位置・サイズ・タブ/split を復元（macOS 専用）
+window-save-state = always
