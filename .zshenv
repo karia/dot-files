@@ -50,8 +50,11 @@ if [[ -z "$__ZSHENV_SETUP_DONE" ]]; then
   # pnpm: global bin for CLIs installed via `pnpm add -g` / `pnpm link --global`.
   # `pnpm setup` writes this to .zshrc, but keep it here so non-interactive
   # shells (Claude Code, hooks) also resolve globally-installed commands.
-  export PNPM_HOME="${HOME}/Library/pnpm"
-  add_path_if_exists "$PNPM_HOME/bin"
+  # Only set it where the global bin actually exists (same shape as Go above).
+  if [[ -d "${HOME}/Library/pnpm/bin" ]]; then
+    export PNPM_HOME="${HOME}/Library/pnpm"
+    export PATH="$PNPM_HOME/bin:$PATH"
+  fi
 
   # mise: shims for non-interactive shells (scripts, hooks, Claude Code, cron).
   # Interactive shells use `mise activate zsh` (function mode) in .zshrc.
