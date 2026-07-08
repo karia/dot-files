@@ -7,7 +7,13 @@
 # shared helpers -- intentionally duplicated in .zshrc so each file
 # works standalone even when the other is missing (e.g. symlink not created)
 source_if_exists() { [[ -f "$1" ]] && source "$1"; }
-add_path_if_exists() { [[ -d "$1" ]] && export PATH="$1:${PATH}"; }
+add_path_if_exists() {
+  [[ -d "$1" ]] || return
+  case ":$PATH:" in
+    *":$1:"*) ;;                    # already on PATH -- do nothing (idempotent)
+    *) export PATH="$1:${PATH}" ;;
+  esac
+}
 
 # Run environment/PATH setup once per process tree to avoid PATH duplication
 # and redundant work in nested shells and scripts.
