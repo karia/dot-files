@@ -47,6 +47,15 @@ if [[ -z "$__ZSHENV_SETUP_DONE" ]]; then
   # Google Cloud SDK PATH (completion stays in .zshrc -- interactive only)
   source_if_exists "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc"
 
+  # pnpm: global bin for CLIs installed via `pnpm add -g` / `pnpm link --global`.
+  # `pnpm setup` writes this to .zshrc, but keep it here so non-interactive
+  # shells (Claude Code, hooks) also resolve globally-installed commands.
+  # Only set it where the global bin actually exists (same shape as Go above).
+  if [[ -d "${HOME}/Library/pnpm/bin" ]]; then
+    export PNPM_HOME="${HOME}/Library/pnpm"
+    export PATH="$PNPM_HOME/bin:$PATH"
+  fi
+
   # mise: shims for non-interactive shells (scripts, hooks, Claude Code, cron).
   # Interactive shells use `mise activate zsh` (function mode) in .zshrc.
   if [[ ! -o interactive ]]; then
