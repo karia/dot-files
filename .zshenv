@@ -15,56 +15,55 @@ add_path_if_exists() {
   esac
 }
 
-# Run environment/PATH setup once per process tree to avoid PATH duplication
-# and redundant work in nested shells and scripts.
-if [[ -z "$__ZSHENV_SETUP_DONE" ]]; then
-  export __ZSHENV_SETUP_DONE=1
+# No once-per-process-tree guard: every add below is idempotent (add_path_if_exists
+# skips dirs already on PATH; brew/mise evals are gated on their target being absent),
+# so re-sourcing in nested shells is cheap and edits take effect on a new shell.
 
-  export EDITOR='vim'
+export EDITOR='vim'
 
-  # Homebrew: login shells also set this in .zprofile (to survive macOS
-  # /etc/zprofile path_helper reordering), but non-login shells only source
-  # .zshenv -- and mise itself lives in Homebrew's bin, so run this before mise.
-  if [[ -x /opt/homebrew/bin/brew ]] && [[ ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  fi
+# Homebrew: login shells also set this in .zprofile (to survive macOS
+# /etc/zprofile path_helper reordering), but non-login shells only source
+# .zshenv -- and mise itself lives in Homebrew's bin, so run this before mise.
+if [[ -x /opt/homebrew/bin/brew ]] && [[ ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
 
-  add_path_if_exists "${HOME}/.local/bin"
+add_path_if_exists "${HOME}/.local/bin"
 
-  # Go
-  if [[ -d "${HOME}/go" ]]; then
-    export GOPATH="${HOME}/go"
-    add_path_if_exists "${GOPATH}/bin"
-  fi
+# Go
+if [[ -d "${HOME}/go" ]]; then
+  export GOPATH="${HOME}/go"
+  add_path_if_exists "${GOPATH}/bin"
+fi
 
-  case ${OSTYPE} in
-    darwin*)
-      # mysql-client 8.4 (HOMEBREW_PREFIX is set by brew shellenv above)
-      add_path_if_exists "$HOMEBREW_PREFIX/opt/mysql-client@8.4/bin"
-      ;;
-    linux*)
-      # Linuxbrew
-      [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-      # snap
-      add_path_if_exists "/snap/bin"
-      ;;
-  esac
+case ${OSTYPE} in
+  darwin*)
+    # mysql-client 8.4 (HOMEBREW_PREFIX is set by brew shellenv above)
+    add_path_if_exists "$HOMEBREW_PREFIX/opt/mysql-client@8.4/bin"
+    ;;
+  linux*)
+    # Linuxbrew
+    [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    # snap
+    add_path_if_exists "/snap/bin"
+    ;;
+esac
 
-  # Google Cloud SDK PATH (completion stays in .zshrc -- interactive only)
-  source_if_exists "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc"
+# Google Cloud SDK PATH (completion stays in .zshrc -- interactive only)
+source_if_exists "${HOME}/projects/others/google-cloud-sdk/path.zsh.inc"
 
-  # pnpm: global bin for CLIs installed via `pnpm add -g` / `pnpm link --global`.
-  # `pnpm setup` writes this to .zshrc, but keep it here so non-interactive
-  # shells (Claude Code, hooks) also resolve globally-installed commands.
-  # Only set it where the global bin actually exists (same shape as Go above).
-  if [[ -d "${HOME}/Library/pnpm/bin" ]]; then
-    export PNPM_HOME="${HOME}/Library/pnpm"
-    export PATH="$PNPM_HOME/bin:$PATH"
-  fi
+# pnpm: global bin for CLIs installed via `pnpm add -g` / `pnpm link --global`.
+# `pnpm setup` writes this to .zshrc, but keep it here so non-interactive
+# shells (Claude Code, hooks) also resolve globally-installed commands.
+# Only set it where the global bin actually exists (same shape as Go above).
+if [[ -d "${HOME}/Library/pnpm/bin" ]]; then
+  export PNPM_HOME="${HOME}/Library/pnpm"
+  add_path_if_exists "$PNPM_HOME/bin"
+fi
 
-  # mise: shims for non-interactive shells (scripts, hooks, Claude Code, cron).
-  # Interactive shells use `mise activate zsh` (function mode) in .zshrc.
-  if [[ ! -o interactive ]]; then
-    command -v mise >/dev/null 2>&1 && eval "$(mise activate --shims)"
-  fi
+# mise: shims for non-interactive shells (scripts, hooks, Claude Code, cron).
+# Interactive shells use `mise activate zsh` (function mode) in .zshrc.
+# Skip the eval when the shims dir is already on PATH so nested shells don't re-run it.
+if [[ ! -o interactive ]] && [[ ":$PATH:" != *":${HOME}/.local/share/mise/shims:"* ]]; then
+  command -v mise >/dev/null 2>&1 && eval "$(mise activate --shims)"
 fi
