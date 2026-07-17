@@ -7,3 +7,7 @@ font-thicken-strength = 128
 
 # 前回終了時のウィンドウ位置・サイズ・タブ/split を復元（macOS 専用）
 window-save-state = always
+
+# 背景を透過（0.9 = 10% 透ける）+ 背景側を控えめにぼかしてコントラスト維持
+background-opacity = 0.9
+background-blur = 10
