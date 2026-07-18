@@ -61,6 +61,10 @@ if [[ -d "${HOME}/Library/pnpm/bin" ]]; then
   add_path_if_exists "$PNPM_HOME/bin"
 fi
 
+# kubectl: k3s bundles kubectl as a symlink that defaults to the root-only
+# /etc/rancher/k3s/k3s.yaml, so point it at the user copy when one exists.
+[[ -f "${HOME}/.kube/config" ]] && export KUBECONFIG="${HOME}/.kube/config"
+
 # mise: shims for non-interactive shells (scripts, hooks, Claude Code, cron).
 # Interactive shells use `mise activate zsh` (function mode) in .zshrc.
 # Skip the eval when the shims dir is already on PATH so nested shells don't re-run it.
