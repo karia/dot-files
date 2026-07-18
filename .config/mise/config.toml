@@ -2,6 +2,7 @@
 claude = "latest"
 fzf = "latest"
 ghq = "latest"
+herdr = "latest"
 node = "lts"
 "npm:@openai/codex" = "latest"
 "npm:ccusage" = "latest"
