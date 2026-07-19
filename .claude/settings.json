@@ -56,7 +56,6 @@
       "Bash(git push -f:*)"
     ]
   },
-  "model": "claude-fable-5[1m]",
   "hooks": {
     "Stop": [
       {
