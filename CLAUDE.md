@@ -33,12 +33,12 @@ The dotfiles expect the following tools to be available:
 Two deployment methods are supported:
 
 1. **Automated (macOS)**: Use the setup script at <https://github.com/karia/setup-mac>
-2. **Manual**: Clone the repository and create symlinks:
+2. **Manual**: Clone the repository under ghq and create symlinks:
 
    ```bash
+   ghq get karia/dot-files   # => ~/ghq/github.com/karia/dot-files
    cd ~
-   git clone git@github.com:karia/dot-files.git
-   ln -s ~/dot-files/.* .
+   ln -s ~/ghq/github.com/karia/dot-files/.* .
    ```
 
 ### Git Configuration
@@ -51,8 +51,8 @@ The repository uses Git's `includeIf` feature to automatically apply different c
 After cloning, create symlinks for the Git config files:
 
 ```bash
-ln -sf ~/dot-files/.gitconfig-work ~/.gitconfig-work
-ln -sf ~/dot-files/.gitconfig-personal ~/.gitconfig-personal
+ln -sf ~/ghq/github.com/karia/dot-files/.gitconfig-work ~/.gitconfig-work
+ln -sf ~/ghq/github.com/karia/dot-files/.gitconfig-personal ~/.gitconfig-personal
 ```
 
 ## Architecture Notes
