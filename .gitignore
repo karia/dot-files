@@ -14,6 +14,7 @@
 .claude/policy-limits.json
 .claude/projects/
 .claude/remote-settings.json
+.claude/scheduled_tasks.lock
 .claude/session-env/
 .claude/sessions/
 .claude/settings.local.json
@@ -23,13 +24,16 @@
 .claude/tasks/
 .claude/telemetry/
 .claude/todos/
+.claude/uploads/
 .config/Code/
+.config/cloudflare/
 .config/configstore/
 .config/gcloud
 .config/gh/hosts.yml
 .config/github-copilot
 .config/go/
 .config/google-chrome-for-testing/
+.config/helm/
 .config/herdr/*.log
 .config/herdr/*.sock
 .config/herdr/session.json
@@ -37,6 +41,7 @@
 .config/mimeapps.list
 .config/ookla/
 .config/raycast
+.config/tailscale/
 .config/wslu/
 .gitconfig-work
 credentials.json
