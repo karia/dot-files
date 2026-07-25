@@ -11,10 +11,10 @@ Use this script: https://github.com/karia/setup-mac
 ## Usage (Manual deploy)
 
 ```
-cd ~
-git clone git@github.com:karia/dot-files.git
+ghq get karia/dot-files   # => ~/ghq/github.com/karia/dot-files
 
-ln -s ~/dot-files/.* .
+cd ~
+ln -s ~/ghq/github.com/karia/dot-files/.* .
 ```
 
 Sashimi Tampopo!!
