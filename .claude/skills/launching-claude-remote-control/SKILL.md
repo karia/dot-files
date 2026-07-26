@@ -101,8 +101,9 @@ herdr pane send-keys <pane_id> Enter
 ここで `pane run` を使わない。
 `pane run` はテキストと Enter をまとめて送るため、選択済みのリストに余計な入力が入る。
 
-信頼済みのディレクトリではプロンプトが出ない。
-その場合は何も送らずに (6) へ進む。
+ホームディレクトリで起動した場合、Yes を選んでも確認結果は永続化されない。
+`~/.claude.json` の該当ディレクトリが `hasTrustDialogAccepted: false` のまま `projectOnboardingSeenCount` だけ増えていく。
+起動のたびにプロンプトが出るので、2回目以降も同じ手順で通す。
 
 ## (6) 起動の確認
 
@@ -112,8 +113,11 @@ herdr pane read <pane_id> --source visible --lines 45
 ```
 
 - `pane get` の `agent`：`claude` になっていること。
-- `pane get` の `agent_status`：`idle` になっていること。
-  `unknown` のままなら、まだ TUI が立ち上がりきっていないか、trust プロンプトで止まっている。
+- `pane get` の `agent_session.value`：セッション ID が入っていること。
+  trust プロンプトで止まっている pane も `agent: claude` かつ `agent_status: idle` を返すため、
+  `agent_status` では起動の成否を判別できない。止まっている間は `agent_session.value` が `null`。
+- `pane get` の `terminal_title_stripped`：`null` でなくなっていること。
+  新規起動なら `Claude Code`、`--resume` ならセッションのタイトルが入る。
 - `pane read` の出力：`/remote-control is active` の行と `https://claude.ai/code/session_...` の URL が出ていること。
 
 この URL を依頼者に伝える。
@@ -128,4 +132,6 @@ herdr pane read <pane_id> --source visible --lines 45
 | pane ID を workspace 番号から推測する | 作成応答の `result.root_pane.pane_id` を読む |
 | trust プロンプトに `pane run` で "1" を送る | 選択肢 1 は選択済み。`send-keys Enter` だけ送る |
 | プロンプトの有無を確認せずキーを送る | 先に `pane read` で画面を読む |
-| 起動コマンドを打った時点で完了とする | `pane get` で `agent_status: idle` を確認し、Remote Control の URL を伝える |
+| `agent_status: idle` を見て起動成功と判断する | プロンプトで止まっていても `idle` を返す。`agent_session.value` で確認する |
+| 前回 Yes を選んだので今回は出ないと考える | ホームディレクトリでは永続化されない。2回目以降も確認する |
+| 起動コマンドを打った時点で完了とする | `agent_session.value` がセッション ID になったことを確認し、Remote Control の URL を伝える |
