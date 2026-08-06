@@ -24,6 +24,18 @@
 .claude/sessions/
 .claude/settings.local.json
 .claude/shell-snapshots/
+# AWS Well-Architectedのskill群はaws-samplesリポジトリへのsymlinkでマシンローカル。symlinkはディレクトリ扱いされず末尾スラッシュ付きだとマッチしないため付けない
+.claude/skills/architecture-decision-record
+.claude/skills/cost-optimization-review
+.claude/skills/migration-readiness
+.claude/skills/operational-excellence
+.claude/skills/performance-efficiency
+.claude/skills/reliability-improvement-plan
+.claude/skills/security-assessment
+.claude/skills/sustainability-optimization
+.claude/skills/wa-builder
+.claude/skills/wa-guardrails
+.claude/skills/wa-review
 .claude/stats-cache.json
 .claude/statsig/
 .claude/tasks/
