@@ -3,10 +3,15 @@
 .claude/.update.lock
 .claude/backups/
 .claude/cache/
+.claude/commands/
+.claude/daemon.log
+.claude/daemon/
 .claude/debug/
 .claude/file-history/
 .claude/history.jsonl
 .claude/ide/
+.claude/image-cache/
+.claude/jobs/
 .claude/mcp-needs-auth-cache.json
 .claude/paste-cache/
 .claude/plans/
