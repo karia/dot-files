@@ -61,6 +61,9 @@ if [[ -d "${HOME}/Library/pnpm/bin" ]]; then
   add_path_if_exists "$PNPM_HOME/bin"
 fi
 
+# Rancher Desktop: docker/nerdctl/kubectl when the app is installed
+add_path_if_exists "${HOME}/.rd/bin"
+
 # kubectl: k3s bundles kubectl as a symlink that defaults to the root-only
 # /etc/rancher/k3s/k3s.yaml, so point it at the user copy when one exists.
 [[ -f "${HOME}/.kube/config" ]] && export KUBECONFIG="${HOME}/.kube/config"
