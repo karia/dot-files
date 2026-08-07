@@ -22,3 +22,28 @@ agent_panel_sort = "spaces"
 # エージェント完了を OS 通知で受け取る
 [ui.toast]
 delivery = "system"
+
+# herdr-file-viewer: prefix+f で split 起動
+[[keys.command]]
+key = "prefix+f"
+type = "shell"
+command = "herdr plugin action invoke open-file-viewer --plugin herdr-file-viewer"
+description = "Open file viewer in split pane"
+
+# prefix+shift+f でタブ起動
+[[keys.command]]
+key = "prefix+shift+f"
+type = "shell"
+command = "herdr plugin action invoke open-file-viewer-tab --plugin herdr-file-viewer"
+description = "Open file viewer in new tab"
+
+# herdr-plugin-hunk: prefix+d で worktree diff
+[[keys.command]]
+key = "prefix+d"
+type = "shell"
+command = "herdr plugin action invoke hunk.diff.worktree-split"
+description = "Open worktree diff in split pane"
+
+[experimental]
+# prefix モードの間だけ macOS の入力ソースを ASCII 系に切り替え、抜けたら元の入力ソースに戻す
+switch_ascii_input_source_in_prefix = true
