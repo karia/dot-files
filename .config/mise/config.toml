@@ -1,4 +1,6 @@
 [tools]
+bitwarden = "latest"
+bitwarden-secrets-manager = "latest"
 claude = "latest"
 fzf = "latest"
 ghq = "latest"
