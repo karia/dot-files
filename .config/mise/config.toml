@@ -2,6 +2,7 @@
 bitwarden = "latest"
 bitwarden-secrets-manager = "latest"
 claude = "latest"
+crane = "latest"
 fzf = "latest"
 ghq = "latest"
 herdr = "latest"

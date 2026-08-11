@@ -1,12 +1,10 @@
 ---
 name: publishing-k3s-apps
 description: >-
-  Use when deploying or updating an app on the local k3s cluster (yuno04),
-  running release migrations, or exposing an app through Cloudflare Tunnel /
-  side2.net. 新規アプリの公開、既存アプリのイメージ更新、マイグレーション、
-  独自ホスト名の割り当てを行うときに使用する。Triggers include k3s, kubectl,
-  deploy, migration, rollout, Ingress, Traefik, cloudflared, Cloudflare Tunnel,
-  DNS, terraform, and side2.net.
+  yuno04のlocal k3s clusterへアプリをdeploy・updateするとき、release migrationを
+  実行するとき、Cloudflare Tunnel / side2.net経由でアプリを公開するときに使用する。
+  新規アプリの公開、既存アプリのimage更新、migration、rollout、独自host名の割り当て、
+  kubectl、Ingress、Traefik、cloudflared、DNS、terraformを扱う作業が対象。
 ---
 
 # k3sアプリのデプロイとインターネット公開
@@ -34,19 +32,20 @@ yuno04のk3sはCloudflare Tunnel（`yuno-k3s`）で公開済み。Tunnelはcatch
 ## 既存アプリのイメージ更新
 
 最初にアプリrepo固有の`CLAUDE.md`と、`yuno04-k3s/apps/<アプリ名>/README.md`を読む。
-マイグレーションがアプリ起動から分離されている場合は、次の順序を崩さない。
+まず、migration Jobの有無と、migrationがアプリ起動から分離されているかを確認する。
+Jobがある場合は、migration完了後にDeploymentを更新する順序を崩さない。
 
 1. default branchの対象commitに対するイメージビルドが成功していることを確認する
 2. 完全なcommit SHAのtagからdigestを取得する
    ```bash
-   mise x crane@0.21.9 -- crane digest ghcr.io/<owner>/<image>:sha-<full-commit-sha>
+   crane digest ghcr.io/<owner>/<image>:sha-<full-commit-sha>
    ```
-3. 専用worktreeで、Deploymentとmigration Jobの**両方**を同じ`tag@digest`へ更新する
+3. 専用worktreeでDeploymentを新しい`tag@digest`へ更新する。migration Jobがある場合は**同じ`tag@digest`**へ更新する
 4. yuno04-k3sのPRを作成する。先にクラスタへ適用する場合でもdefault branchへ直接pushしない
-5. `generateName`を持つmigration Jobを`kubectl create -f`で作成する。`apply`は使わない
-6. Jobの`Complete`を待ち、ログで実行対象のmigrationが成功したことを確認する
-7. Job完走後にDeploymentをapplyし、rollout完了を待つ
-8. Podのready数、実際のイメージ、外部health endpointを確認する
+5. migration Jobがある場合、`generateName`を持つJobを`kubectl create -f`で作成する。`apply`は使わない
+6. migration Jobがある場合、Jobの`Complete`を待ち、ログで実行対象のmigrationが成功したことを確認する
+7. migrationが不要、またはJobが完走した後にDeploymentをapplyし、rollout完了を待つ
+8. Podのready数、実際のimage、外部health endpointを確認する
 
 ```bash
 job=$(kubectl create -f apps/<アプリ名>/migrate-job.yaml -o name)
@@ -60,9 +59,10 @@ kubectl -n <namespace> get deploy/<アプリ名> \
 curl --fail --silent --show-error -o /dev/null -w '%{http_code}\n' https://<ホスト名>/up
 ```
 
-rollout完了直後は、経路の切り替え中に外部health checkが一度だけ502になることがある。
-即座に失敗と判断せず、PodがReadyか、ServiceのEndpointが新Podを指すか、アプリログ内のhealth checkが200かを確認してから外部確認を再実行する。
-502が継続する場合はIngress・Service・Endpoint・アプリログを調査する。
+外部health checkで502が一度でも発生したら、一時的事象として片づけず毎回原因を調査する。
+PodのReady時刻、rolloutの切り替え状態、ServiceのEndpoint、Ingress、アプリログを時系列で確認し、判明した原因と対応策を依頼者へ報告する。
+原因に応じてreadiness probe、`minReadySeconds`、rolling updateの`maxUnavailable` / `maxSurge`など、deployment parameterで再発を防げるかも検討する。
+再試行で解消しても原因を特定できなければ、調査内容と原因不明であることを報告する。
 
 ## DNSレコード（terraform/dns/records.tf に追記する形）
 
@@ -141,7 +141,7 @@ spec:
 - `ingressClassName: traefik` の指定漏れ（defaultだが明示する）
 - **DNSはTerraform管理**。ダッシュボードやAPIで直接レコードを作らない（state と乖離する）。必ず records.tf を編集して PR → apply
 - **yuno04-k3sのdefault branchへ直接pushしない**。デプロイ済みでもマニフェスト更新はworktreeからPRにする
-- migration Jobだけ、またはDeploymentだけを新digestにしない。古いコードでmigrationを実行したり、新しいコードが古いschemaへ接続したりする
-- Deploymentを先に更新しない。migration Jobの完走を確認してからrolloutする
-- rollout直後の単発502だけでrollbackしない。readiness、Endpoint、ログを確認して再試行する
+- migration Jobがあるアプリでは、Jobだけ、またはDeploymentだけを新digestにしない。古いコードでmigrationを実行したり、新しいコードが古いschemaへ接続したりする
+- migration JobがあるアプリではDeploymentを先に更新しない。Jobの完走を確認してからrolloutする
+- rollout直後の単発502を一時的事象として片づけない。毎回原因と再発防止策を調査し、原因不明の場合も含めて報告する
 - **Ingress+DNSを作った瞬間に全世界公開**。認証が必要なアプリは公開前にCloudflare Access導入を依頼者と相談する
