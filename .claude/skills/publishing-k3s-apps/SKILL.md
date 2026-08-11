@@ -1,6 +1,10 @@
 ---
 name: publishing-k3s-apps
-description: Use when deploying a new app to the local k3s cluster (yuno04) or exposing an app to the internet via Cloudflare Tunnel / side2.net — 新しいアプリをk3sで動かす・インターネット公開する・独自ホスト名を割り当てるとき。keywords: k3s, kubectl, Ingress, Traefik, cloudflared, Cloudflare Tunnel, DNS, terraform, side2.net
+description: >-
+  yuno04のlocal k3s clusterへアプリをdeploy・updateするとき、release migrationを
+  実行するとき、Cloudflare Tunnel / side2.net経由でアプリを公開するときに使用する。
+  新規アプリの公開、既存アプリのimage更新、migration、rollout、独自host名の割り当て、
+  kubectl、Ingress、Traefik、cloudflared、DNS、terraformを扱う作業が対象。
 ---
 
 # k3sアプリのデプロイとインターネット公開
@@ -11,12 +15,54 @@ yuno04のk3sはCloudflare Tunnel（`yuno-k3s`）で公開済み。Tunnelはcatch
 
 構成一式は private repo [`karia/yuno04-k3s`](https://github.com/karia/yuno04-k3s)（ローカル `~/ghq/github.com/karia/yuno04-k3s`、ghq管理）、DNSは別repo [`karia/side2.net`](https://github.com/karia/side2.net) の `terraform/dns/` で管理。
 
-## 手順
+## 変更管理
+
+`karia/yuno04-k3s`と`karia/side2.net`の変更は、規模を問わずdefault branchへ直接pushしない。
+各repoの元ディレクトリを最新のdefault branchに保ち、`pr-flow`に従って横並びのworktreeでbranchを作り、commit・push・PR作成を行う。
+クラスタへ先に適用した場合も、稼働状態とgit管理のマニフェストを一致させるPRを必ず作成する。
+
+## 新規アプリの手順
 
 1. マニフェストを `~/ghq/github.com/karia/yuno04-k3s/apps/<アプリ名>/` に作成（下の例を参照）
-2. `kubectl apply -R -f ~/ghq/github.com/karia/yuno04-k3s/apps/<アプリ名>/`
-3. DNS登録: `karia/side2.net` の `terraform/dns/records.tf` に proxied CNAME を追加 → **PR作成 → レビュー → マージ後にローカルで `terraform apply`**（レコードはこの apply で作成される）
-4. 検証: `kubectl rollout status deploy/<アプリ名>` → `curl -s https://<ホスト名>.side2.net` で期待するレスポンスを確認
+2. yuno04-k3sのPRを作成する
+3. `kubectl apply -R -f ~/ghq/github.com/karia/yuno04-k3s/apps/<アプリ名>/`
+4. DNS登録: `karia/side2.net` の `terraform/dns/records.tf` に proxied CNAME を追加 → **PR作成 → レビュー → マージ後にローカルで `terraform apply`**（レコードはこの apply で作成される）
+5. 検証: `kubectl rollout status deploy/<アプリ名>` → `curl -s https://<ホスト名>.side2.net` で期待するレスポンスを確認
+
+## 既存アプリのイメージ更新
+
+最初にアプリrepo固有の`CLAUDE.md`と、`yuno04-k3s/apps/<アプリ名>/README.md`を読む。
+まず、migration Jobの有無と、migrationがアプリ起動から分離されているかを確認する。
+Jobがある場合は、migration完了後にDeploymentを更新する順序を崩さない。
+
+1. default branchの対象commitに対するイメージビルドが成功していることを確認する
+2. 完全なcommit SHAのtagからdigestを取得する
+   ```bash
+   crane digest ghcr.io/<owner>/<image>:sha-<full-commit-sha>
+   ```
+3. 専用worktreeでDeploymentを新しい`tag@digest`へ更新する。migration Jobがある場合は**同じ`tag@digest`**へ更新する
+4. yuno04-k3sのPRを作成する。先にクラスタへ適用する場合でもdefault branchへ直接pushしない
+5. migration Jobがある場合、`generateName`を持つJobを`kubectl create -f`で作成する。`apply`は使わない
+6. migration Jobがある場合、Jobの`Complete`を待ち、ログで実行対象のmigrationが成功したことを確認する
+7. migrationが不要、またはJobが完走した後にDeploymentをapplyし、rollout完了を待つ
+8. Podのready数、実際のimage、外部health endpointを確認する
+
+```bash
+job=$(kubectl create -f apps/<アプリ名>/migrate-job.yaml -o name)
+kubectl -n <namespace> wait --for=condition=complete "$job" --timeout=180s
+kubectl -n <namespace> logs "$job"
+
+kubectl apply -f apps/<アプリ名>/deployment.yaml
+kubectl -n <namespace> rollout status deploy/<アプリ名> --timeout=180s
+kubectl -n <namespace> get deploy/<アプリ名> \
+  -o jsonpath='{.status.readyReplicas}/{.status.replicas}{" ready, image="}{.spec.template.spec.containers[0].image}{"\n"}'
+curl --fail --silent --show-error -o /dev/null -w '%{http_code}\n' https://<ホスト名>/up
+```
+
+外部health checkで502が一度でも発生したら、一時的事象として片づけず毎回原因を調査する。
+PodのReady時刻、rolloutの切り替え状態、ServiceのEndpoint、Ingress、アプリログを時系列で確認し、判明した原因と対応策を依頼者へ報告する。
+原因に応じてreadiness probe、`minReadySeconds`、rolling updateの`maxUnavailable` / `maxSurge`など、deployment parameterで再発を防げるかも検討する。
+再試行で解消しても原因を特定できなければ、調査内容と原因不明であることを報告する。
 
 ## DNSレコード（terraform/dns/records.tf に追記する形）
 
@@ -94,4 +140,8 @@ spec:
 - IngressのhostとDNSレコード名の不一致 → Traefikが404を返す。完全一致させる
 - `ingressClassName: traefik` の指定漏れ（defaultだが明示する）
 - **DNSはTerraform管理**。ダッシュボードやAPIで直接レコードを作らない（state と乖離する）。必ず records.tf を編集して PR → apply
+- **yuno04-k3sのdefault branchへ直接pushしない**。デプロイ済みでもマニフェスト更新はworktreeからPRにする
+- migration Jobがあるアプリでは、Jobだけ、またはDeploymentだけを新digestにしない。古いコードでmigrationを実行したり、新しいコードが古いschemaへ接続したりする
+- migration JobがあるアプリではDeploymentを先に更新しない。Jobの完走を確認してからrolloutする
+- rollout直後の単発502を一時的事象として片づけない。毎回原因と再発防止策を調査し、原因不明の場合も含めて報告する
 - **Ingress+DNSを作った瞬間に全世界公開**。認証が必要なアプリは公開前にCloudflare Access導入を依頼者と相談する
