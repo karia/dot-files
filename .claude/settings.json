@@ -48,7 +48,8 @@
       "Bash(tflint:*)",
       "Bash(trivy:*)",
       "Bash(yamllint:*)",
-      "EnterWorktree"
+      "EnterWorktree",
+      "ExitWorktree"
     ],
     "deny": [],
     "ask": [
