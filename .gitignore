@@ -42,6 +42,7 @@
 .claude/telemetry/
 .claude/todos/
 .claude/uploads/
+.claude/worktrees/
 .config/Bitwarden CLI/
 .config/Code/
 .config/cloudflare/

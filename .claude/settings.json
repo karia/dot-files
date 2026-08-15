@@ -47,7 +47,9 @@
       "Bash(terraform validate:*)",
       "Bash(tflint:*)",
       "Bash(trivy:*)",
-      "Bash(yamllint:*)"
+      "Bash(yamllint:*)",
+      "EnterWorktree",
+      "ExitWorktree"
     ],
     "deny": [],
     "ask": [
