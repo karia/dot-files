@@ -61,12 +61,12 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 - 作成した PR の URL を `open` コマンドで開き、テンプレート記入・description・課題紐付けを目視確認する。
 - 今回の対象外のテーマの変更が作業ツリーに残っている場合は、今回の PR に含めず、別 PR・別 commit として扱う。
 - `karia/` 配下かつ非 draft の PR の場合は、マージ監視を仕掛ける。`karia/` 配下では PR 作成後すぐにマージされることが多く、都度「default branch に戻って」と指示する手間を省くため。Claude Code のスケジュール済みタスク（`/loop` skill）を使い、独自の shell ループは組まない。
-  - 間隔は 2 分固定（`/loop 2m ...`）で仕掛ける。`karia/` 配下はすぐマージされるため、短い固定間隔で素早く検知する。固定間隔ではマージ/close を検知したら自分でループを止める。PR 番号は作成時の出力から取得する。作業は worktree の中で行うため、後片付けは `merged-branch-cleanup` に委ね、プロンプトに元ディレクトリと worktree の絶対パスを埋め込む。例:
+  - 間隔は指数関数的 backoff にする。`/loop` を間隔指定なしで仕掛け（動的間隔モード）、待ち時間の伸ばし方をプロンプト自体に書く。初回 2 分ですぐマージされるケースを拾い、レビュー待ちで長時間かかるケースでは確認回数を抑えるため。上限 1 時間は `ScheduleWakeup` の上限に合わせている。マージ/close を検知したら自分でループを止める。PR 番号は作成時の出力から取得する。作業は worktree の中で行うため、後片付けは `merged-branch-cleanup` に委ね、プロンプトに元ディレクトリと worktree の絶対パスを埋め込む。例:
     ```text
-    /loop 2m PR #<PR番号> が `gh pr view <PR番号> --json state -q .state` でマージ済みか確認する。MERGED なら merged-branch-cleanup の手順で後片付けする（元ディレクトリ <元repo絶対パス> へ戻り、worktree <worktree絶対パス> と作業 branch を削除）。済んだらループを終了する。CLOSED（未マージ）ならループを止めて知らせる。OPEN なら次の確認まで待つ
+    /loop PR #<PR番号> が `gh pr view <PR番号> --json state -q .state` でマージ済みか確認する。MERGED なら merged-branch-cleanup の手順で後片付けする（元ディレクトリ <元repo絶対パス> へ戻り、worktree <worktree絶対パス> と作業 branch を削除）。済んだらループを終了する。CLOSED（未マージ）ならループを止めて知らせる。OPEN なら次の確認まで待つ。次の確認までの待ち時間は初回 120 秒とし、以降は毎回 2 倍（240→480→960→1920→3600）に伸ばして 3600 秒で頭打ちにする
     ```
   - マージ検知時の後片付けは `merged-branch-cleanup` に従う。元ディレクトリへ戻る・default branch の最新化・worktree と作業 branch の削除・空の専用フォルダの掃除・破壊的操作の確認ゲートまで、すべて同 skill が扱う。
-  - スケジュール済みタスクはセッションスコープ（セッション終了で停止、`--resume`/`--continue` で 7 日以内なら復元）。停止したいときは待機中に `Esc`、または Claude にタスクのキャンセルを依頼する（内部的には `CronList`/`CronDelete`）。
+  - スケジュール済みタスクはセッションスコープ（セッション終了で停止、`--resume`/`--continue` で 7 日以内なら復元）。停止したいときは待機中に `Esc`、または Claude にタスクのキャンセルを依頼する（動的間隔モードでは内部的に `ScheduleWakeup` の停止）。
 - draft PR や `karia/` 以外のリポジトリでは、この監視は仕掛けない。worktree の作成・削除は監視の有無に関わらず行うため、監視を仕掛けない場合の worktree 削除は、マージ後に依頼者の指示で `merged-branch-cleanup` の手順で行う。
 
 ## よくある取りこぼし
@@ -85,3 +85,4 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 | 作成して終わりにする | `open` で URL を開いて確認する |
 | `karia/` の PR をマージ後に手動で default branch に戻る | 作成時に `/loop` でマージ監視を仕掛け、マージ検知で自動復帰する |
 | マージ監視に独自 shell ループを組む | Claude Code のスケジュール済みタスク（`/loop`）を使う |
+| マージ監視を短い固定間隔で回し続ける | 指数関数的 backoff（2 分から倍々、上限 1 時間）で伸ばす |
