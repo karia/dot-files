@@ -25,7 +25,13 @@ yuno04のk3sはCloudflare Tunnel（`yuno-k3s`）で公開済み。Tunnelはcatch
 
 1. マニフェストを `~/ghq/github.com/karia/yuno04-k3s/apps/<アプリ名>/` に作成（下の例を参照）
 2. yuno04-k3sのPRを作成する
-3. `kubectl apply -R -f ~/ghq/github.com/karia/yuno04-k3s/apps/<アプリ名>/`
+3. namespaceを先に作り、続けてJob以外を適用する
+
+   ```bash
+   cd ~/ghq/github.com/karia/yuno04-k3s
+   kubectl apply -f apps/<アプリ名>/namespace.yaml
+   kubectl apply $(grep -LE '^[[:space:]]*generateName:' apps/<アプリ名>/*.yaml | sed 's/^/-f /')
+   ```
 4. DNS登録: `karia/side2.net` の `terraform/dns/records.tf` に proxied CNAME を追加 → **PR作成 → レビュー → マージ後にローカルで `terraform apply`**（レコードはこの apply で作成される）
 5. 検証: `kubectl rollout status deploy/<アプリ名>` → `curl -s https://<ホスト名>.side2.net` で期待するレスポンスを確認
 
@@ -144,4 +150,5 @@ spec:
 - migration Jobがあるアプリでは、Jobだけ、またはDeploymentだけを新digestにしない。古いコードでmigrationを実行したり、新しいコードが古いschemaへ接続したりする
 - migration JobがあるアプリではDeploymentを先に更新しない。Jobの完走を確認してからrolloutする
 - rollout直後の単発502を一時的事象として片づけない。毎回原因と再発防止策を調査し、原因不明の場合も含めて報告する
+- **ディレクトリを`apply -R -f`しない**。`generateName`のJobがあると`cannot use generate name with apply`で失敗し、辞書順のため`namespace.yaml`が後回しになってまっさらなクラスタでは名前空間付きリソースが先に落ちる。namespaceを先に適用し、残りは`generateName`を持たないファイルだけを`-f`で渡す
 - **Ingress+DNSを作った瞬間に全世界公開**。認証が必要なアプリは公開前にCloudflare Access導入を依頼者と相談する
