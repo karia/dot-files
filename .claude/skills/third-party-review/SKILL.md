@@ -134,8 +134,9 @@ gh api graphql -f query='
 
 次を確認してから draft を外す。
 
-- すべての行コメントスレッドに返信済みで、resolve 済みであること。
-- 修正 commit が push 済みで、CI が通っていること（`gh pr checks <PR番号>`）。
+- すべての行コメントスレッドに返信済みで、resolve 済みであること（(4) の GraphQL query の `isResolved` で確認する）。
+- 修正 commit が push 済みであること。
+- CI があるリポジトリでは CI が通っていること（`gh pr checks <PR番号>`）。check が 1 件も報告されていないリポジトリでは、同コマンドは "no checks reported" を出して非ゼロ終了するため、この確認は不要。
 
 ```bash
 gh pr ready <PR番号>
@@ -143,7 +144,9 @@ gh pr ready <PR番号>
 
 外したら PR の URL を `open` で開き、返信とスレッドの状態を目視確認する。
 
-`karia/` 配下のリポジトリでは、ここで pr-flow (4) のマージ監視を仕掛ける。pr-flow は draft PR には監視を仕掛けないため、ready 化したこの時点が監視の開始点になる。
+`karia/` 配下のリポジトリでは、ここで pr-flow (4) のマージ監視を仕掛ける。pr-flow は draft PR には監視を仕掛けないため、draft で作った PR ならここが監視の開始点になる。
+
+ただし (0) で `gh pr ready --undo` を使って draft へ戻した PR には、pr-flow が作成時に仕掛けた監視が生きている可能性がある。`--undo` はループを止めず、pr-flow のループは state が OPEN の間は待ち続けるため。監視が残っていれば仕掛け直さない。二重に走らせると、マージ後に同じ worktree と branch に対して `merged-branch-cleanup` が 2 回実行される。
 
 ## よくある取りこぼし
 
@@ -166,3 +169,5 @@ gh pr ready <PR番号>
 | 返信後にスレッドを開いたままにする | resolve する |
 | 返信を終えて draft のまま放置する | `gh pr ready` で ready for review にする |
 | ready 化後にマージ監視を仕掛け忘れる | `karia/` 配下なら pr-flow (4) の監視をここで開始する |
+| draft へ戻した PR に監視を仕掛け直して二重に走らせる | `--undo` は既存の監視を止めない。残っていれば仕掛けない |
+| CI のないリポジトリで `gh pr checks` の結果を待つ | check 0 件なら非ゼロ終了する。CI があるリポジトリでのみ確認する |
