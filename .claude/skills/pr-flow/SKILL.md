@@ -55,6 +55,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 - title/description の言語は、`karia/` 配下なら英語で統一。それ以外（特に organization 配下）はレビュアーが日本人のため、特別な指示がなければ日本語で記述する。
 - 日本語で書く箇所は `japanese-tech-writing` の規範に従い、日本語と英数字の間にスペースを入れない詰め書きにする。
 - draft を求められた場合は `--draft` を付けて draft PR として作成する。
+- 第三者レビューを回す場合は draft のまま作成し、以降は `third-party-review` に従う。レビュアーの起動・指摘への返信・ready for review 化・マージ監視の開始まで、同 skill が扱う。
 
 ## (4) 作成後の確認（検証・後片付け）
 
