@@ -95,7 +95,8 @@ gh api repos/<owner>/<repo>/pulls/<PR番号>/comments
 対応する場合:
 
 - 修正を commit する。1 指摘 1 commit を基本にする（細かすぎれば後でまとめればよい）。
-- push してから、返信に commit の GitHub URL を含める。`https://github.com/<owner>/<repo>/commit/<sha>` の形。sha は `git rev-parse HEAD` で取得する。push 前の sha を貼ると 404 になるため、push 後に貼る。
+- push してから、返信に commit の GitHub URL を含める。`https://github.com/<owner>/<repo>/commit/<sha>` の形。push 前の sha を貼ると 404 になるため、push 後に貼る。
+- sha は commit 直後に `git rev-parse HEAD` で控えておき、指摘とセットで記録する。まとめて push した後に `git rev-parse HEAD` を読むと最後の commit しか指さず、どの返信も無関係な commit にリンクすることになる。控え損ねた場合は `git log --oneline <base>..HEAD` から該当 commit を特定する。
 - 返信はその指摘の行コメントスレッドに返す。総括コメントで一括返信しない。
 
   ```bash
@@ -109,6 +110,25 @@ gh api repos/<owner>/<repo>/pulls/<PR番号>/comments
 - 指摘が誤りだと判断した場合も、どこが事実と違うかを具体的に書く。
 
 返信を終えたスレッドは resolve する。対応せずに閉じた（＝理由を説明して見送った）スレッドも、返信済みなら resolve してよい。
+
+resolve は REST にエンドポイントがなく、GraphQL の `resolveReviewThread` を使う。対象は `PRRT_...` 形式の thread node ID で、comment ID とは別物。
+
+```bash
+gh api graphql -f query='
+  query($owner:String!, $repo:String!, $pr:Int!) {
+    repository(owner:$owner, name:$repo) {
+      pullRequest(number:$pr) {
+        reviewThreads(first:50) { nodes { id isResolved comments(first:1) { nodes { body } } } }
+      }
+    }
+  }' -F owner=<owner> -F repo=<repo> -F pr=<PR番号>
+
+gh api graphql -f query='
+  mutation($id:ID!) { resolveReviewThread(input:{threadId:$id}) { thread { isResolved } } }
+  ' -F id=<thread_id>
+```
+
+上の query は (5) で「全スレッドが resolve 済みか」を確認するときにも使う（`isResolved` を見る）。
 
 ## (5) ready for review 化
 
