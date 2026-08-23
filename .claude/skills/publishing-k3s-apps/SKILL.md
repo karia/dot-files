@@ -25,15 +25,27 @@ yuno04のk3sはCloudflare Tunnel（`yuno-k3s`）で公開済み。Tunnelはcatch
 
 1. マニフェストを `~/ghq/github.com/karia/yuno04-k3s/apps/<アプリ名>/` に作成（下の例を参照）
 2. yuno04-k3sのPRを作成する
-3. namespaceを先に作り、続けてJob以外を適用する
+3. worktreeのルートで、namespaceがあれば先に作り、続けてJob以外を適用する。
+   元ディレクトリはdefault branchのままでマージ前の`apps/<アプリ名>/`が存在しないため、コマンドはworktree側で実行する。
 
    ```bash
-   cd ~/ghq/github.com/karia/yuno04-k3s
-   kubectl apply -f apps/<アプリ名>/namespace.yaml
-   kubectl apply $(grep -LE '^[[:space:]]*generateName:' apps/<アプリ名>/*.yaml | sed 's/^/-f /')
+   app=<アプリ名>
+   [ -f "apps/${app}/namespace.yaml" ] && kubectl apply -f "apps/${app}/namespace.yaml"
+   # generateName のJobはapplyできないので除く。2スペースはmetadata直下を指す。
+   manifests=$(grep -LE '^  generateName:' apps/${app}/*.yaml)
+   [ -n "${manifests}" ] && kubectl apply $(printf -- '-f %s ' ${manifests})
    ```
-4. DNS登録: `karia/side2.net` の `terraform/dns/records.tf` に proxied CNAME を追加 → **PR作成 → レビュー → マージ後にローカルで `terraform apply`**（レコードはこの apply で作成される）
-5. 検証: `kubectl rollout status deploy/<アプリ名>` → `curl -s https://<ホスト名>.side2.net` で期待するレスポンスを確認
+
+4. migrationなど`generateName`のJobがあれば`create`で流し、完走を確認してからDeploymentのrolloutへ進む
+
+   ```bash
+   job=$(kubectl create -f apps/${app}/migrate-job.yaml -o name)
+   kubectl -n <namespace> wait --for=condition=complete "${job}" --timeout=180s
+   kubectl -n <namespace> logs "${job}"
+   ```
+
+5. DNS登録: `karia/side2.net` の `terraform/dns/records.tf` に proxied CNAME を追加 → **PR作成 → レビュー → マージ後にローカルで `terraform apply`**（レコードはこの apply で作成される）
+6. 検証: `kubectl rollout status deploy/<アプリ名>` → `curl -s https://<ホスト名>.side2.net` で期待するレスポンスを確認
 
 ## 既存アプリのイメージ更新
 
