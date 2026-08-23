@@ -27,10 +27,11 @@ description: 自分が書いた PR を、実装のコンテキストを持たな
 
 外部 CLI を優先するのは、別プロセスのほうがコンテキストの分離が確実で、レビュー中も元セッションを使い続けられるため。`command -v` で存在を確認してから選ぶ。
 
-Herdr 管理下（`test "${HERDR_ENV:-}" = 1`）で外部 CLI が使えるなら、別 pane で起動する。CLI の構文は `herdr` skill、起動シーケンスは `launching-claude-remote-control` に従う。
+Herdr 管理下（`test "${HERDR_ENV:-}" = 1`）で外部 CLI が使えるなら、別 pane で起動する。CLI の構文は `herdr` skill に従う。`launching-claude-remote-control` は使わない。同 skill は `claude --remote-control` 専用で、trust folder プロンプトの確定や `agent: claude`・`/remote-control is active` を成否判定に使うため、codex や cursor-agent では判定が通らない。
 
-- pane には `review` などのラベルを付けておく。後から一覧で識別するため。
-- `--no-focus` で作る。依頼者のフォーカスを奪わない。
+- workspace は `herdr workspace create --no-focus` で作る。依頼者のフォーカスを奪わない。
+- pane には `herdr pane rename <pane_id> "review"` でラベルを付ける。後から一覧で識別するため。
+- 起動できたかは `herdr pane read <pane_id>` で当該 CLI のプロンプトが出ていることを見る。
 
 Herdr の外にいる場合、または外部 CLI がない場合は自分の subagent を使う。subagent は会話の履歴を引き継がないため、コンテキスト分離の条件は満たせる。
 
