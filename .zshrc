@@ -118,7 +118,7 @@ setopt print_eightbit
 export TERM=xterm-256color
 
 # for ghq
-alias gcode='code "`ghq root`/`ghq list | fzf`"'
+alias gco='code "`ghq root`/`ghq list | fzf`"'
 gcd() {
   local selected
   selected="$(ghq list | fzf)" || return
