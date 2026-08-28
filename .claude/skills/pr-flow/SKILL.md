@@ -46,16 +46,29 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 ## (3) PR 作成
 
 - 対象 branch を push する。push 前の確認は `secret-scan-before-push` skill に従う。
-- テンプレートを探す。通常はリポジトリルートの `pull_request_template.md` だが、`.github/` 配下やサブディレクトリにある場合もある。`.github/PULL_REQUEST_TEMPLATE/` も確認する。
+- PR作成前にテンプレートを探す。通常はリポジトリルートの `pull_request_template.md` だが、`.github/` 配下やサブディレクトリにある場合もある。`.github/PULL_REQUEST_TEMPLATE/` も確認する。
+- GitHub CLIを利用してPRを作成する。このとき以下に注意する。
+  - title/description の言語は、`karia/` 配下なら英語で統一。それ以外（特に organization 配下）はレビュアーが日本人のため、特別な指示がなければ日本語で記述する。
+  - draft を求められた場合は `--draft` を付けて draft PR として作成する。
+  - 第三者レビューを回す場合は draft のまま作成し、以降は `third-party-review` に従う。レビュアーの起動・指摘への返信・ready for review 化・マージ監視の開始まで、同 skill が扱う。
+
+### description記述方法
+
+- まず `tech-writing-style` skillを読み込み、規範に従う。日本語と英数字の間にスペースを入れない詰め書きにする。
+- 書き上がったら `sanitize-artifacts` skillで確認する。
 - テンプレートがある場合はテンプレート通りに記入する。
   - 項目を自己判断で削除しない。記入不要な項目は空欄のまま残す（テンプレートに削除指示がある場合のみ削除する）。
-- description:
-  - 記述量はミニマムに保つ。コードを読めば分かることは書かない。
-  - JIRA 課題に紐づくなら課題 ID・リンクを PR に付与する。
-- title/description の言語は、`karia/` 配下なら英語で統一。それ以外（特に organization 配下）はレビュアーが日本人のため、特別な指示がなければ日本語で記述する。
-- 日本語で書く箇所は `tech-writing-style` の規範に従い、日本語と英数字の間にスペースを入れない詰め書きにする。
-- draft を求められた場合は `--draft` を付けて draft PR として作成する。
-- 第三者レビューを回す場合は draft のまま作成し、以降は `third-party-review` に従う。レビュアーの起動・指摘への返信・ready for review 化・マージ監視の開始まで、同 skill が扱う。
+- JIRA 課題に紐づくなら課題 ID・リンクを PR に付与する。
+- 記述量はミニマムに保つ。例えば、以下の様なことは書かない。
+  - コードを読めば自明なこと
+  - 変更したファイル名や関数名（レビュワーはPRのFile Changesを読むので書く必要がない。概要が肥大化する原因であり不要。）
+  - cspell辞書への追加（PR変更の本筋ではない）
+  - linter・formatterをpassしたことの報告（PRを出す時点で、passしていることは当たり前）
+
+### 実装意図の説明
+
+- 実装意図はソースコメントやdescriptionに書かず、GitHubの行コメントで説明する。ただし、コンテキストを知らない第三者への説明が必要な場合に限定する。
+- GitHubの行コメントは、指示があった場合を除き、自らで書いてはならない。「行コメント必要箇所」として依頼者に提示する。その際、「何をコメントすべきか」「なぜコメントが必要か」を明確にする。
 
 ## (4) 作成後の確認（検証・後片付け）
 
