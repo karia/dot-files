@@ -20,7 +20,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
   - `name` は 64 文字以内で、`/` 区切りの各セグメントは英数字・ドット・アンダースコア・ハイフンのみを使う。
   - `name` は PR ごとに一意にする。既存の worktree と同名を渡すと、その worktree を再開し、前回の commit が残った状態から作業を始めることになる。
   - 基点は `worktree.baseRef` 設定に従い、既定の `fresh` では `origin/<default branch>` から切られる。直前に `git fetch --prune` を済ませていれば、worktree も最新の default branch から始まる。
-- Bash ツールの単独 `cd` では worktree へ移動できない。worktree は primary working directory の外にあるため、`cd` は呼び出しの終了時に元ディレクトリへ巻き戻され、以降の git/gh が元ディレクトリで実行されてしまう。
+- Bash ツールの単独 `cd` で代用しない。`cd` が変えるのは Bash の CWD だけで、セッションの作業ディレクトリ・書き込み権限の範囲・読み込まれる `CLAUDE.md` と設定は元ディレクトリのまま残る。`EnterWorktree` はこれらをまとめて worktree へ移す。
 - 移動後に `pwd` で worktree にいることを確認する。以降の git/gh は worktree の CWD で素の形で実行する。
 - worktree の中で `git branch -m <branch 名>` を実行し、PR 用の branch 名に改名する。`EnterWorktree` が自動で付ける `worktree-<name>` は変更内容を表さないため、そのまま push しない。branch 名は変更内容が分かる名前にする（JIRA 課題があれば ID を含めてよい）。push より前に済ませる。
 - worktree の中身が元ディレクトリの未コミット変更として現れないよう、`.claude/worktrees/` を git の追跡対象から外す。自分のリポジトリなら `.gitignore`、他者と共有するリポジトリなら `.git/info/exclude` に書く。`.claude/` ごと無視しているリポジトリでは設定は要らない。
@@ -99,7 +99,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 | `git worktree add` で作った worktree に `path` で入る | `EnterWorktree` に `name` を渡し、作成と移動を一度に行う |
 | 自動で付く `worktree-` 始まりの branch 名のまま push する | push 前に `git branch -m` で PR 用の branch 名に改名する |
 | 元ディレクトリの未コミット変更を置き去りにする | `git stash -u` で退避し worktree で pop して持ち込む |
-| 単独 `cd` で worktree へ移動しようとして元ディレクトリに巻き戻される | `EnterWorktree` に `name` を渡して移動する |
+| 単独 `cd` で worktree へ移動したつもりになる | `cd` は Bash の CWD しか変えない。`EnterWorktree` に `name` を渡す |
 | worktree に居たまま削除しようとして失敗する | 先に `ExitWorktree`（`action: "keep"`）で元ディレクトリへ戻ってから削除する |
 | default branch で直接 commit する | worktree の作業 branch で commit する |
 | 元ディレクトリを CWD にして worktree 内のファイルを linter にかける | linter は worktree の CWD で実行する |
