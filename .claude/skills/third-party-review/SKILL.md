@@ -1,6 +1,6 @@
 ---
 name: third-party-review
-description: 自分が書いた PR を、実装のコンテキストを持たない別のエージェント（codex / cursor agent / 自分の subagent）にレビューさせ、指摘へ返信して ready for review まで持っていく手順。draft PR の用意・レビュアーの起動・コンテキストを渡さない依頼の書き方・レビュー完了の検知・修正 commit URL 付きの返信・draft 解除までを扱う。「第三者レビューして」「レビューを回して」「codexにレビューさせて」「別エージェントにPRを見てもらって」「セルフレビューじゃなく客観的に見てほしい」のような依頼で使用する。対象 PR 番号が引数で渡された場合はそれを対象にする。
+description: 自分が書いた PR を、実装のコンテキストを持たない別のエージェント（claude / codex / cursor agent のうち自分以外、なければ自分の subagent）にレビューさせ、指摘へ返信して ready for review まで持っていく手順。draft PR の用意・レビュアーの起動・コンテキストを渡さない依頼の書き方・レビュー完了の検知・修正 commit URL 付きの返信・draft 解除までを扱う。「第三者レビューして」「レビューを回して」「codexにレビューさせて」「別エージェントにPRを見てもらって」「セルフレビューじゃなく客観的に見てほしい」のような依頼で使用する。対象 PR 番号が引数で渡された場合はそれを対象にする。
 ---
 
 # 第三者レビューの依頼手順
@@ -21,21 +21,20 @@ description: 自分が書いた PR を、実装のコンテキストを持たな
 
 ## (1) レビュアーの選定と起動
 
-使えるものを次の優先順で選ぶ。
+このスキルは `claude`・`codex`・`cursor-agent` のいずれが実行してもよい。レビュアーは候補から**自分自身を除いて**選ぶ。同じ製品の別プロセスでもコンテキストは分離できるが、同じ癖と盲点を持ち込むため、別の製品を先に当たる。
 
-1. `codex`
-2. `cursor-agent`
-3. 自分の subagent
+1. 自分以外の外部 CLI（`claude`・`codex`・`cursor-agent` のうち、自分でないもの）
+2. 自分の subagent
 
-外部 CLI を優先するのは、別プロセスのほうがコンテキストの分離が確実で、レビュー中も元セッションを使い続けられるため。`command -v` で存在を確認してから選ぶ。
+外部 CLI を優先するのは、別プロセスのほうがコンテキストの分離が確実で、レビュー中も元セッションを使い続けられるため。`command -v` で存在を確認してから選ぶ。自分以外の CLI が 1 つも入っていない場合だけ、自分の subagent を使う。
 
-Herdr 管理下（`test "${HERDR_ENV:-}" = 1`）で外部 CLI が使えるなら、別 pane で起動する。CLI の構文は `herdr` skill に従う。`launching-claude-remote-control` は使わない。同 skill は `claude --remote-control` 専用で、trust folder プロンプトの確定や `agent: claude`・`/remote-control is active` を成否判定に使うため、codex や cursor-agent では判定が通らない。
+Herdr 管理下（`test "${HERDR_ENV:-}" = 1`）で外部 CLI が使えるなら、別 pane で起動する。CLI の構文は `herdr` skill に従う。レビュアーに `claude` を選んだ場合も `launching-claude-remote-control` は使わない。同 skill は `claude --remote-control` 専用で、trust folder プロンプトの確定や `agent: claude`・`/remote-control is active` を成否判定に使う。レビューに remote control は要らず、codex や cursor-agent ではその判定自体が通らない。
 
 - workspace は `herdr workspace create --no-focus` で作る。依頼者のフォーカスを奪わない。
 - pane には `herdr pane rename <pane_id> "review"` でラベルを付ける。後から一覧で識別するため。
 - 起動できたかは `herdr pane read <pane_id>` で当該 CLI のプロンプトが出ていることを見る。
 
-Herdr の外にいる場合、または外部 CLI がない場合は自分の subagent を使う。subagent は会話の履歴を引き継がないため、コンテキスト分離の条件は満たせる。
+Herdr の外にいる場合、または自分以外の外部 CLI がない場合は自分の subagent を使う。subagent は会話の履歴を引き継がないため、コンテキスト分離の条件は満たせる。
 
 ## (2) レビュー依頼（コンテキストを渡さない）
 
@@ -157,6 +156,7 @@ gh pr ready <PR番号>
 | 取りこぼし | 正しくは |
 |---|---|
 | 同じセッションでセルフレビューする | コンテキストを持たない別プロセス・別 subagent に渡す |
+| 自分と同じ CLI をレビュアーに選ぶ | 候補から自分自身を除く。他がなければ自分の subagent |
 | レビュアーがさらに別エージェントへ委譲して再帰する | 依頼文で「あなたが最終レビュアー」「`third-party-review` に従わない」と明示する |
 | 「この変更の狙いは〜」と背景を添えて依頼する | 渡すのはリポジトリ名と PR 番号だけ |
 | 説明が足りない箇所を先回りで補足する | 黙っておく。説明不足なら指摘されるべき事項 |
