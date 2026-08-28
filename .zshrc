@@ -144,3 +144,6 @@ source_if_exists "${HOME}/.p10k.zsh"
 
 # for mise
 command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
+
+# Rancher Desktop: docker/nerdctl/kubectl when the app is installed
+add_path_if_exists "${HOME}/.rd/bin"
