@@ -31,12 +31,12 @@ PR がマージされた後に、作業環境を次の作業へ戻すための�
   - 対象 worktree の branch がマージ済みであること（(3) と同じ方法で検証）。
   - 対象 worktree に未コミットの変更がないこと。
 - 削除対象の worktree の中にいる場合は、そのままでは削除できない。先に main worktree（元ディレクトリ＝リポジトリトップ）へ戻る。main worktree のパスは `git worktree list` の先頭行で特定できる。
-  - `EnterWorktree` で入っている場合は `ExitWorktree` に `action: "keep"` を渡して戻る。`path` で入った worktree は `ExitWorktree` の削除対象外なので、`action: "remove"` は使わず、戻ってから下記の `git worktree remove` で消す。
+  - `EnterWorktree` で入っている場合は `ExitWorktree` に `action: "keep"` を渡して戻る。`action: "remove"` は使わない。削除は戻ってから下記の `git worktree remove` で行い、未コミット変更が残っていれば git 側に拒否させる。
   - Bash ツールの単独 cd で入っている場合は単独 cd で戻る。
 - `git worktree list` で対象パスを特定し、`git worktree remove <path>` で削除する。ディレクトリへ `cd` せず、リポジトリトップからパス指定で消す。
   - `git worktree remove` は未コミット変更やロックがあると拒否する。`--force` は、失う変更がないと確認できた場合のみ使う。
 - 削除後に `git worktree prune` で参照を掃除する。
-- worktree を専用フォルダ（例: `<repo>.worktrees/`）にまとめている場合、削除でそのフォルダが空になることがある。空なら `rmdir <専用フォルダ>` で掃除する。非再帰の `rmdir` は、他の worktree が残っていれば安全に失敗するので、中身の有無を気にせず打ってよい。
+- worktree の置き場所である `.claude/worktrees/` は、空になっても削除しない。git の追跡対象から外してあり、次の worktree でそのまま使う。
 
 ## (5) rebase・前提 PR の後始末（依頼された場合）
 
@@ -58,6 +58,6 @@ PR がマージされた後に、作業環境を次の作業へ戻すための�
 | worktree を未確認で `--force` 削除する | 未コミット変更がないと確認してから削除する |
 | worktree ディレクトリへ `cd` して消す | リポジトリトップからパス指定で `worktree remove` |
 | 削除対象の worktree の中にいたまま remove しようとして失敗する | 先に main worktree（リポジトリトップ）へ戻る（`EnterWorktree` で入っていれば `ExitWorktree` の `action: "keep"`） |
-| `ExitWorktree` の `action: "remove"` で worktree を消そうとする | `path` で入った worktree は対象外。戻ってから `git worktree remove` で消す |
-| 削除後に空の専用フォルダ（`<repo>.worktrees/`）を残す | 空なら `rmdir` で掃除する |
+| `ExitWorktree` の `action: "remove"` で worktree を消そうとする | `action: "keep"` で戻ってから `git worktree remove` で消す |
+| 空になった `.claude/worktrees/` を削除する | 置き場所として残す |
 | 前提 PR 取り込み後も description を放置する | 言及があれば修正・削除する |
