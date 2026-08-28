@@ -91,7 +91,19 @@ gh api repos/<owner>/<repo>/pulls/<PR番号>/comments
   /loop PR #<PR番号> に第三者レビューのコメントが付いたか `gh api repos/<owner>/<repo>/pulls/<PR番号>/comments --jq length` で確認する。1 件以上ならループを終了し、third-party-review (4) の対応へ進む。0 件のままなら `herdr pane read <pane_id> --source visible --lines 40` で pane の出力を読み、レビューが失敗・停止していればループを止めて原因を知らせる。まだ実行中なら次の確認まで待つ。待ち時間は前回宣言した値の 2 倍（初回は 1 分、15 分で頭打ち）とし、毎回「次の確認まで N 分待つ」と明記してから待つ。`Monitor` は使わない
   ```
 
-- pane が idle になっていてもコメントが 0 件なら、レビュー自体が失敗している。`herdr pane read` で出力を読み、原因（権限不足、PR が見つからない等）を確認してから仕切り直す。
+- コメントが 0 件でも、review が `PENDING` で止まっていることがある。create-review は `event` を欠くと下書きの review を作り、その中の行コメントは公開されない。`gh pr view --json reviews` には現れるのに `pulls/<PR番号>/comments` は 0 件、という食い違いが目印になる。仕切り直す前に確認する。
+
+  ```bash
+  gh api repos/<owner>/<repo>/pulls/<PR番号>/reviews --jq '.[] | {id, state}'
+  ```
+
+  `PENDING` が残っていたら、レビュアーに submit させる。レビュアーが応じないなら自分で submit してよい。内容はレビュアーが書いたもので、公開するだけだから。
+
+  ```bash
+  gh api repos/<owner>/<repo>/pulls/<PR番号>/reviews/<review_id>/events --method POST -f event=COMMENT
+  ```
+
+- pane が idle になっていてコメントも `PENDING` の review も無いなら、レビュー自体が失敗している。`herdr pane read` で出力を読み、原因（権限不足、PR が見つからない等）を確認してから仕切り直す。
 
 ## (4) 指摘への対応と返信
 
@@ -169,6 +181,7 @@ gh pr ready <PR番号>
 | 「指摘」と「変更提案」を混ぜて書かせる | ラベルで分けさせる |
 | レビュアーに断定形で書かせる | 提案口調（「〜してはいかがでしょうか」）で書かせる |
 | レビュアーの「完了しました」を鵜呑みにする | PR に実際にコメントが付いたかを API で確認する |
+| コメント 0 件をレビュー失敗と決めつける | `PENDING` の review が残っていないか確認し、あれば submit させる |
 | 別 pane の待機に独自 shell ループを組む | `/loop` の動的間隔モードを使う（1 分から倍々、上限 15 分） |
 | `/loop` に停止条件を書かず回り続けさせる | コメント検知・レビュー失敗のどちらでも止まるようプロンプトに書く |
 | 対応しない指摘を無言で放置する | 理由を書いて返信する |
