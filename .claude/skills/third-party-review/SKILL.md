@@ -28,7 +28,7 @@ description: 自分が書いた PR を、実装のコンテキストを持たな
 
 外部 CLI を優先するのは、別プロセスのほうがコンテキストの分離が確実で、レビュー中も元セッションを使い続けられるため。`command -v` で存在を確認してから選ぶ。ただし外部 CLI は対話 TUI として起動するので、別 pane を用意できる Herdr 管理下でしか使えない。subagent へ落ちる条件は後述する。
 
-Herdr 管理下（`test "${HERDR_ENV:-}" = 1`）で外部 CLI が使えるなら、別 pane で起動する。CLI の構文は `herdr` skill に従う。レビュアーに `claude` を選んだ場合も `launching-claude-remote-control` は使わない。同 skill は `claude --remote-control` 専用で、trust folder プロンプトの確定や `agent: claude`・`/remote-control is active` を成否判定に使う。レビューに remote control は要らず、codex や cursor-agent ではその判定自体が通らない。
+Herdr 管理下（`test "${HERDR_ENV:-}" = 1`）で外部 CLI が使えるなら、別 pane で起動する。`herdr` の構文は、`herdr` skill が入っていればそれに従う。無ければ `herdr --help` と各コマンドグループ（`herdr workspace` など、サブコマンドを省いて実行する）の出力で確認する。構文の権威はインストール済みのバイナリであり、版によって差がある。レビュアーに `claude` を選んだ場合も `launching-claude-remote-control` は使わない。同 skill は `claude --remote-control` 専用で、trust folder プロンプトの確定や `agent: claude`・`/remote-control is active` を成否判定に使う。レビューに remote control は要らず、codex や cursor-agent ではその判定自体が通らない。
 
 - workspace は `herdr workspace create --no-focus` で作る。依頼者のフォーカスを奪わない。
 - pane には `herdr pane rename <pane_id> "review"` でラベルを付ける。後から一覧で識別するため。
