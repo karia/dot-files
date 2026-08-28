@@ -30,7 +30,9 @@ PR がマージされた後に、作業環境を次の作業へ戻すための�
 - worktree の削除はディレクトリごと消える破壊的操作。以下を確認してから実施する。
   - 対象 worktree の branch がマージ済みであること（(3) と同じ方法で検証）。
   - 対象 worktree に未コミットの変更がないこと。
-- 削除対象の worktree の中にいる場合は、そのままでは削除できない。先に単独 cd で main worktree（元ディレクトリ＝リポジトリトップ）へ戻る。main worktree のパスは `git worktree list` の先頭行で特定できる。
+- 削除対象の worktree の中にいる場合は、そのままでは削除できない。先に main worktree（元ディレクトリ＝リポジトリトップ）へ戻る。main worktree のパスは `git worktree list` の先頭行で特定できる。
+  - `EnterWorktree` で入っている場合は `ExitWorktree` に `action: "keep"` を渡して戻る。`path` で入った worktree は `ExitWorktree` の削除対象外なので、`action: "remove"` は使わず、戻ってから下記の `git worktree remove` で消す。
+  - Bash ツールの単独 cd で入っている場合は単独 cd で戻る。
 - `git worktree list` で対象パスを特定し、`git worktree remove <path>` で削除する。ディレクトリへ `cd` せず、リポジトリトップからパス指定で消す。
   - `git worktree remove` は未コミット変更やロックがあると拒否する。`--force` は、失う変更がないと確認できた場合のみ使う。
 - 削除後に `git worktree prune` で参照を掃除する。
@@ -55,6 +57,7 @@ PR がマージされた後に、作業環境を次の作業へ戻すための�
 | いきなり `git branch -D` する | まず安全側の `-d`。`-D` は確認後のみ |
 | worktree を未確認で `--force` 削除する | 未コミット変更がないと確認してから削除する |
 | worktree ディレクトリへ `cd` して消す | リポジトリトップからパス指定で `worktree remove` |
-| 削除対象の worktree の中にいたまま remove しようとして失敗する | 先に単独 cd で main worktree（リポジトリトップ）へ戻る |
+| 削除対象の worktree の中にいたまま remove しようとして失敗する | 先に main worktree（リポジトリトップ）へ戻る（`EnterWorktree` で入っていれば `ExitWorktree` の `action: "keep"`） |
+| `ExitWorktree` の `action: "remove"` で worktree を消そうとする | `path` で入った worktree は対象外。戻ってから `git worktree remove` で消す |
 | 削除後に空の専用フォルダ（`<repo>.worktrees/`）を残す | 空なら `rmdir` で掃除する |
 | 前提 PR 取り込み後も description を放置する | 言及があれば修正・削除する |

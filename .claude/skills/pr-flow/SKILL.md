@@ -24,7 +24,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
   git worktree add "$wt" -b "$BRANCH"      # パス引数は可（git -C ではない）。中間フォルダも作られる
   ```
   専用フォルダ形式なら、`ghq list`（`.git` の有無でリポジトリ判定し worktree の `.git` ファイルも拾う）の一覧で worktree だと判別でき、本物リポジトリに紛れない。
-- worktree へ移動する: 単独の `cd "$wt"`（`cd <絶対パス> && git ...` の複合形ではない単独 cd なので、上の禁止事項には当たらない）。Bash ツールは呼び出し間で CWD を維持するため、以降の git/gh は worktree の CWD で素の形で実行する。移動後に `pwd` で worktree にいることを確認する。
+- worktree へ移動する。`EnterWorktree` ツールに `path` として worktree の絶対パスを渡し、セッションの作業ディレクトリごと切り替える（`git worktree list` に載っていれば、`git worktree add` で自分が作った既存 worktree にも入れる）。Bash ツールの単独 `cd "$wt"` では移動できない。worktree は primary working directory の外にあるため、`cd` は呼び出しの終了時に元ディレクトリへ巻き戻され、以降の git/gh が元ディレクトリで実行されてしまう。移動後に `pwd` で worktree にいることを確認する。以降の git/gh は worktree の CWD で素の形で実行する。
 - 元ディレクトリで退避していれば、worktree 側で `git stash pop` して変更を持ち込む（stash は共通 git dir を共有するため worktree から pop できる）。
 - 今回どの変更を PR にするかを確定する。作業ツリーに複数テーマの変更が混在している場合は、今回の PR 対象テーマだけを扱う。
 
@@ -53,7 +53,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
   - 記述量はミニマムに保つ。コードを読めば分かることは書かない。
   - JIRA 課題に紐づくなら課題 ID・リンクを PR に付与する。
 - title/description の言語は、`karia/` 配下なら英語で統一。それ以外（特に organization 配下）はレビュアーが日本人のため、特別な指示がなければ日本語で記述する。
-- 日本語で書く箇所は `japanese-tech-writing` の規範に従い、日本語と英数字の間にスペースを入れない詰め書きにする。
+- 日本語で書く箇所は `tech-writing-style` の規範に従い、日本語と英数字の間にスペースを入れない詰め書きにする。
 - draft を求められた場合は `--draft` を付けて draft PR として作成する。
 - 第三者レビューを回す場合は draft のまま作成し、以降は `third-party-review` に従う。レビュアーの起動・指摘への返信・ready for review 化・マージ監視の開始まで、同 skill が扱う。
 
@@ -77,7 +77,8 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 | 元ディレクトリでその場に branch を切る | 横並びの worktree を作り、元ディレクトリは default branch に保つ |
 | worktree をリポジトリの中に作る | 専用フォルダ `<repo>.worktrees/`（横並び）に作る |
 | 元ディレクトリの未コミット変更を置き去りにする | `git stash -u` で退避し worktree で pop して持ち込む |
-| worktree に居たまま削除しようとして失敗する | 先に単独 cd で元ディレクトリへ戻ってから削除する |
+| 単独 `cd` で worktree へ移動しようとして元ディレクトリに巻き戻される | `EnterWorktree` に worktree の絶対パスを `path` として渡す |
+| worktree に居たまま削除しようとして失敗する | 先に `ExitWorktree`（`action: "keep"`）で元ディレクトリへ戻ってから削除する |
 | default branch で直接 commit する | worktree の作業 branch で commit する |
 | 全変更を一括ステージングする | `git add -p` でテーマ別に分ける |
 | テンプレートの不要項目を削除する | 空欄のまま残す |
