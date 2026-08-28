@@ -23,9 +23,10 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 - Bash ツールの単独 `cd` で代用しない。`cd` が変えるのは Bash の CWD だけで、セッションの作業ディレクトリ・書き込み権限の範囲・読み込まれる `CLAUDE.md` と設定は元ディレクトリのまま残る。`EnterWorktree` はこれらをまとめて worktree へ移す。
 - 移動後に `pwd` で worktree にいることを確認する。以降の git/gh は worktree の CWD で素の形で実行する。
 - worktree の中で `git branch -m <branch 名>` を実行し、PR 用の branch 名に改名する。`EnterWorktree` が自動で付ける `worktree-<name>` は変更内容を表さないため、そのまま push しない。branch 名は変更内容が分かる名前にする（JIRA 課題があれば ID を含めてよい）。push より前に済ませる。
-- worktree の中身が元ディレクトリの未コミット変更として現れないよう、`.claude/worktrees/` を git の追跡対象から外す。`.claude/worktrees/` や `.claude/` ごと無視済みなら設定は要らないので、`EnterWorktree` より前に元ディレクトリで確認する。
-  - 未設定なら、worktree を作る前に共通 git dir の `.git/info/exclude` へ書く。commit を挟まずに全 worktree へ効く。`.gitignore` に書いても、その変更が default branch にマージされるまでは元ディレクトリに ignore 規則が無く、作成済みの `.claude/worktrees/` が未追跡項目として現れてしまう。
-  - リポジトリへ恒久的に入れたい場合は、`.gitignore` への追加を worktree 側の作業 branch で別途 commit する。元ディレクトリは default branch のまま保つ。
+- worktree の中身が元ディレクトリの未コミット変更として現れないよう、`EnterWorktree` より前に `git check-ignore .claude/worktrees` で無視されているかを確認する。`core.excludesFile` が指すグローバル ignore ファイル（既定は `~/.config/git/ignore`）に記載があれば足りる。通常はこのグローバル設定で賄うため、リポジトリ側の設定は要らない。`.claude/` ごと無視しているリポジトリでも設定は要らない。
+  - 無視されていない場合のみリポジトリ側で設定する。worktree を作る前に共通 git dir の `.git/info/exclude` へ書く。commit を挟まずに全 worktree へ効く。
+  - `.gitignore` に書くのは、設定自体をリポジトリで共有したい場合に限る。その変更が default branch にマージされるまでは元ディレクトリに ignore 規則が無く、作成済みの `.claude/worktrees/` が未追跡項目として現れるため、`.git/info/exclude` の代わりにはならない。
+  - `.gitignore` に書く場合、その変更は元ディレクトリではなく worktree 側の作業 branch で commit する。元ディレクトリは default branch のまま保つ。
 - 元ディレクトリで退避していれば、worktree 側で `git stash pop` して変更を持ち込む（stash は共通 git dir を共有するため worktree から pop できる）。
 - 今回どの変更を PR にするかを確定する。作業ツリーに複数テーマの変更が混在している場合は、今回の PR 対象テーマだけを扱う。
 
