@@ -1,1 +1,0 @@
-/home/karia/ghq/github.com/ogulcancelik/herdr/SKILL.md

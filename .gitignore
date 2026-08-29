@@ -53,6 +53,7 @@
 .config/go/
 .config/google-chrome-for-testing/
 .config/helm/
+.config/herdr/.plugins.lock
 .config/herdr/*.log
 .config/herdr/*.sock
 .config/herdr/release-notes.json
