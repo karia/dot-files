@@ -33,4 +33,48 @@ The full text is in [LICENSES/powerlevel10k-MIT.txt](LICENSES/powerlevel10k-MIT.
 so re-running the wizard replaces the `~/.p10k.zsh` symlink with a regular file.
 Move the generated file back into this repository and recreate the symlink afterwards.
 
+### Updating powerlevel10k
+
+1. Update the plugins.
+
+   ```
+   sheldon lock --update
+   ```
+
+2. Find the template revision the current `.p10k.zsh` is based on,
+   by looking for the revision whose template matches the `checksum` line in the header.
+
+   ```
+   cd ~/.local/share/sheldon/repos/github.com/romkatv/powerlevel10k
+   git log --format=%H -- config/p10k-classic.zsh | while read c; do
+     if [ "$(git show "$c":config/p10k-classic.zsh | sum | awk '{print $1}')" = "<checksum>" ]; then
+       echo "$c"
+       break
+     fi
+   done
+   ```
+
+3. Apply the template changes made since that revision.
+
+   ```
+   git diff <revision> HEAD -- config/p10k-classic.zsh > /tmp/p10k-template.patch
+   cd ~/ghq/github.com/karia/dot-files
+   patch .p10k.zsh < /tmp/p10k-template.patch
+   ```
+
+4. Replace the `checksum` line in the header with the value of the new template.
+
+   ```
+   sum < ~/.local/share/sheldon/repos/github.com/romkatv/powerlevel10k/config/p10k-classic.zsh
+   ```
+
+5. Confirm that `.p10k.zsh` and the template still differ only in the lines that correspond
+   to the wizard answers, and that the difference is the same as before the update.
+
+   ```
+   diff .p10k.zsh ~/.local/share/sheldon/repos/github.com/romkatv/powerlevel10k/config/p10k-classic.zsh
+   ```
+
+6. Run `exec zsh` and confirm that the prompt still renders.
+
 Sashimi Tampopo!!
