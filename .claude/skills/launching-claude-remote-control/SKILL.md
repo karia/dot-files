@@ -1,6 +1,6 @@
 ---
 name: launching-claude-remote-control
-description: Herdr の新しい workspace を作り、そこで Remote Control を有効にした Claude Code を起動して、trust folder の確認プロンプトまで通す手順。「新しいworkspaceでClaudeを起動して」「remote control有効でClaudeを立ち上げて」「別workspaceにClaudeを追加して」のような依頼で使用する。起動先の cwd やラベルが引数で渡された場合はそれを使う。
+description: Herdr の新しい workspace を作り、そこで Remote Control を有効にした Claude Code を起動して、trust folder の確認プロンプトまで通す手順。起動前に空きメモリを確認し、新しいセッションで使用率が 75% に達する場合は依頼者へ警告する。「新しいworkspaceでClaudeを起動して」「remote control有効でClaudeを立ち上げて」「別workspaceにClaudeを追加して」のような依頼で使用する。起動先の cwd やラベルが引数で渡された場合はそれを使う。
 ---
 
 # Herdr の新規 workspace で Remote Control 付き Claude を起動する
@@ -48,7 +48,33 @@ mise x herdr@0.7.4 -- herdr workspace list
 サーバ再起動が本当に必要だと判断した場合は、実行前に依頼者へ確認する。
 このセッションが落ちること、再接続後に `claude --continue` で再開する必要があることを伝える。
 
-## (3) workspace の作成
+## (3) 空きメモリの確認
+
+Claude のセッションは 1 つで数百 MB を占める。
+workspace を作る前に、増える分を含めた物理メモリの使用率が 75% に達しないかを確かめる。
+
+```bash
+free -m | awk '/^Mem:/ { print "total="$2, "available="$7 }'
+ps -eo rss,comm --sort=-rss | awk '$2 == "claude" { print int($1 / 1024); exit }'
+```
+
+使用率は `(total - available) / total` で求める。
+`used` 列は buff/cache を含まないため空きを過小に見せ、`free` 列は再利用できるキャッシュを空きから外すため過大に見せる。
+`available` 列だけを基準にする。
+
+swap の空きは余力に数えない。
+物理メモリが尽きて退避が始まった時点で応答が目に見えて遅くなるため、判定は物理メモリだけで行う。
+
+新しいセッションが増やす分は、稼働中の Claude プロセスの RSS 実測値で見積もる。
+この skill 自体が Claude のセッションで動くため、測る対象は必ず 1 つ以上ある。
+RSS は共有分を各プロセスに二重計上するので、合計ではなく最大の 1 件を 1 セッション分の見積もりとして使う。
+
+`(total - available + 見積もり) / total` が 75% 以上になる場合は、workspace を作らずに依頼者へ警告する。
+総容量、現在の使用率、見積もりを足した使用率を示し、続行してよいかを確認する。
+続行の指示を得るまで workspace を作らない。
+続行しない判断になった場合は、不要なセッションを終了してから測り直す。
+
+## (4) workspace の作成
 
 ```bash
 herdr workspace create --label "claude-remote" --no-focus
@@ -68,7 +94,7 @@ pane にラベルを付けておくと、後から一覧で識別しやすい。
 herdr pane rename <pane_id> "claude-remote"
 ```
 
-## (4) Claude の起動
+## (5) Claude の起動
 
 ```bash
 herdr pane run <pane_id> "claude --remote-control"
@@ -77,7 +103,7 @@ herdr pane run <pane_id> "claude --remote-control"
 `--remote-control` は対話セッションを Remote Control 有効で開始する。
 セッション名を付けたい場合は `claude --remote-control <name>` と書く。
 
-## (5) trust folder プロンプトの確定
+## (6) trust folder プロンプトの確定
 
 未信頼のディレクトリで起動すると、確認プロンプトが出る。
 
@@ -105,7 +131,7 @@ herdr pane send-keys <pane_id> Enter
 `~/.claude.json` の該当ディレクトリが `hasTrustDialogAccepted: false` のまま `projectOnboardingSeenCount` だけ増えていく。
 起動のたびにプロンプトが出るので、2回目以降も同じ手順で通す。
 
-## (6) 起動の確認
+## (7) 起動の確認
 
 ```bash
 herdr pane get <pane_id>
@@ -128,6 +154,9 @@ herdr pane read <pane_id> --source visible --lines 45
 | 取りこぼし | 正しくは |
 |---|---|
 | protocol mismatch のメッセージに従ってサーバを再起動する | 自分のセッションごと落ちる。`mise x herdr@<サーバ版> --` でバージョンを合わせる |
+| 空きメモリを確かめずに workspace を作る | 作る前に使用率を測り、新しいセッションの見積もりを足して 75% に達するなら警告する |
+| `free` 列や swap の空きを余力として数える | `available` 列だけを基準に判定する |
+| 警告を出したうえで workspace 作成に進む | 続行の指示を得るまで作らない |
 | `--focus`（既定）で workspace を作る | 依頼者のフォーカスを奪う。`--no-focus` を付ける |
 | pane ID を workspace 番号から推測する | 作成応答の `result.root_pane.pane_id` を読む |
 | trust プロンプトに `pane run` で "1" を送る | 選択肢 1 は選択済み。`send-keys Enter` だけ送る |
