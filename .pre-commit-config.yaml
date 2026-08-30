@@ -1,4 +1,7 @@
 default_stages: [pre-commit]
+# .p10k.zsh は p10k configure の生成物。整形するとウィザードの出力と差が生じ、
+# テンプレートとの差分比較で更新分を追えなくなるため対象外にする
+exclude: ^\.p10k\.zsh$
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
