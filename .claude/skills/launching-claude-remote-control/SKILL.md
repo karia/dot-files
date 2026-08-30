@@ -59,8 +59,9 @@ ps -eo rss,comm --sort=-rss | awk '$2 == "claude" { print int($1 / 1024); exit }
 ```
 
 使用率は `(total - available) / total` で求める。
-`used` 列は buff/cache を含まないため空きを過小に見せ、`free` 列は再利用できるキャッシュを空きから外すため過大に見せる。
-`available` 列だけを基準にする。
+`available` は、swap を使わず新しいアプリケーションを起動できる物理メモリの推定値で、再利用可能な page cache も考慮する。
+`free` 列は再利用できるキャッシュを空きから外すため、使用率を過大に見せる。
+環境や `procps` のバージョンによる `used` 列の定義差を避けるため、`total` と `available` だけを基準にする。
 
 swap の空きは余力に数えない。
 物理メモリが尽きて退避が始まった時点で応答が目に見えて遅くなるため、判定は物理メモリだけで行う。
@@ -73,6 +74,22 @@ RSS は共有分を各プロセスに二重計上するので、合計ではな�
 総容量、現在の使用率、見積もりを足した使用率を示し、続行してよいかを確認する。
 続行の指示を得るまで workspace を作らない。
 続行しない判断になった場合は、不要なセッションを終了してから測り直す。
+
+### WSL2 の場合
+
+WSL2 の `free` が示すのは WSL2 VM 内のメモリで、Windows ホスト全体の空きメモリではない。
+kernel release に `microsoft` が含まれる場合は WSL2 とみなし、VM 内の判定に加えて Windows ホストも確認する。
+
+```bash
+if grep -qi microsoft /proc/sys/kernel/osrelease; then
+  powershell.exe -NoProfile -NonInteractive -Command '$os = Get-CimInstance Win32_OperatingSystem; $mem = Get-CimInstance Win32_PerfFormattedData_PerfOS_Memory; "total={0} available={1}" -f [math]::Floor($os.TotalVisibleMemorySize / 1024), $mem.AvailableMBytes'
+fi
+```
+
+出力は MiB 単位で、Windows ホストについても `(total - available + 見積もり) / total` を計算する。
+VM 内と Windows ホストのどちらか一方でも 75% 以上になる場合は警告する。
+`powershell.exe` が使えない、または値を取得できない場合は、ホスト側の空きメモリを確認できなかったことを警告し、続行してよいかを確認する。
+ホスト側の確認が失敗しても、そのまま workspace を作ってはならない。
 
 ## (4) workspace の作成
 
@@ -156,6 +173,7 @@ herdr pane read <pane_id> --source visible --lines 45
 | protocol mismatch のメッセージに従ってサーバを再起動する | 自分のセッションごと落ちる。`mise x herdr@<サーバ版> --` でバージョンを合わせる |
 | 空きメモリを確かめずに workspace を作る | 作る前に使用率を測り、新しいセッションの見積もりを足して 75% に達するなら警告する |
 | `free` 列や swap の空きを余力として数える | `available` 列だけを基準に判定する |
+| WSL2 で `free` だけを見て Windows ホストにも余裕があると判断する | VM 内と Windows ホストの両方を確認する |
 | 警告を出したうえで workspace 作成に進む | 続行の指示を得るまで作らない |
 | `--focus`（既定）で workspace を作る | 依頼者のフォーカスを奪う。`--no-focus` を付ける |
 | pane ID を workspace 番号から推測する | 作成応答の `result.root_pane.pane_id` を読む |
