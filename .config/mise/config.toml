@@ -14,7 +14,7 @@ node = "lts"
 "npm:ccusage" = "latest"
 "npm:pnpm" = "latest"
 "npm:prh" = "latest"
-"npm:prh-languageserver" = "latest"
+"npm:prh-languageserver" = { version = "1.0.1", allow_low_downloads = true }
 pinact = "latest"
 uv = "latest"
 
