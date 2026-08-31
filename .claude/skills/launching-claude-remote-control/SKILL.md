@@ -123,21 +123,21 @@ herdr pane run <pane_id> "claude --remote-control"
 ## (6) trust folder プロンプトの確定
 
 未信頼のディレクトリで起動すると、確認プロンプトが出る。
-
-```
- ❯ No, exit
-
- Enter to confirm · Esc to cancel
-```
-
 出力を読み、選択肢と `❯` の位置を確認する。
 
 ```bash
 herdr pane read <pane_id> --source recent --lines 40
 ```
 
+```
+ ❯ No, exit
+   Yes, I trust this folder
+
+ Enter to confirm · Esc to cancel
+```
+
 `❯` を `Yes, I trust this folder` に合わせる。
-上の例のように選択肢が 1 件しか描画されない場合は、`Up` または `Down` でカーソルを動かすと 1 件ずつ現れる。
+選択肢が 1 件しか描画されない場合は、`Up` または `Down` でカーソルを動かすと 1 件ずつ現れる。
 動かしたら読み直して位置を確かめる。
 
 ```bash
