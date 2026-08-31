@@ -8,6 +8,11 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
+      # Claude Code は UI 操作のたびに ~/.claude/settings.json を書き直し、キー順が変わる。
+      # 整形してキー順を固定し、差分を実質の変更だけにする
+      - id: pretty-format-json
+        args: [--autofix, --indent=2]
+        files: ^\.claude/settings\.json$
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
     hooks:
