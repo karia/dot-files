@@ -16,6 +16,7 @@ node = "lts"
 "npm:prh" = "latest"
 "npm:prh-languageserver" = { version = "1.0.1", allow_low_downloads = true }
 pinact = "latest"
+prek = "latest"
 uv = "latest"
 
 [settings]
