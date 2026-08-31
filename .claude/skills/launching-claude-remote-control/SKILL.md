@@ -123,19 +123,28 @@ herdr pane run <pane_id> "claude --remote-control"
 ## (6) trust folder プロンプトの確定
 
 未信頼のディレクトリで起動すると、確認プロンプトが出る。
-
-```
-❯ 1. Yes, I trust this folder
-  2. No, exit
-```
-
-出力を読んでプロンプトの有無を確認する。
+出力を読み、選択肢と `❯` の位置を確認する。
 
 ```bash
-herdr pane read <pane_id> --source visible --lines 40
+herdr pane read <pane_id> --source recent --lines 40
 ```
 
-プロンプトが出ていれば、選択肢 1 が既に選択された状態なので Enter だけを送る。
+```
+ ❯ No, exit
+   Yes, I trust this folder
+
+ Enter to confirm · Esc to cancel
+```
+
+`❯` を `Yes, I trust this folder` に合わせる。
+選択肢が 1 件しか描画されない場合は、`Up` または `Down` でカーソルを動かすと 1 件ずつ現れる。
+動かしたら読み直して位置を確かめる。
+
+```bash
+herdr pane send-keys <pane_id> Up
+```
+
+位置を確かめたうえで Enter を送る。
 
 ```bash
 herdr pane send-keys <pane_id> Enter
@@ -177,8 +186,9 @@ herdr pane read <pane_id> --source visible --lines 45
 | 警告を出したうえで workspace 作成に進む | 続行の指示を得るまで作らない |
 | `--focus`（既定）で workspace を作る | 依頼者のフォーカスを奪う。`--no-focus` を付ける |
 | pane ID を workspace 番号から推測する | 作成応答の `result.root_pane.pane_id` を読む |
-| trust プロンプトに `pane run` で "1" を送る | 選択肢 1 は選択済み。`send-keys Enter` だけ送る |
-| プロンプトの有無を確認せずキーを送る | 先に `pane read` で画面を読む |
+| trust プロンプトに `pane run` で "1" を送る | `send-keys` でカーソルを合わせ、`Enter` だけを送る |
+| 選択肢を読まずにキーを送る | 先に `pane read` で選択肢と `❯` の位置を読む |
+| 選択肢の一覧を画面に出そうとする | 描画されない行は scrollback に残らず、`pane zoom` でも `pane resize` でも広げられない。`Up` か `Down` で 1 件ずつ読む |
 | `agent_status: idle` を見て起動成功と判断する | プロンプトで止まっていても `idle` を返す。`agent_session.value` で確認する |
 | 前回 Yes を選んだので今回は出ないと考える | ホームディレクトリでは永続化されない。2回目以降も確認する |
 | 起動コマンドを打った時点で完了とする | `agent_session.value` がセッション ID になったことを確認し、Remote Control の URL を伝える |
