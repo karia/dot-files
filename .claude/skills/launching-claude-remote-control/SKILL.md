@@ -136,12 +136,8 @@ herdr pane run <pane_id> "claude --remote-control"
 herdr pane read <pane_id> --source recent --lines 40
 ```
 
-pane の行数が少ないと、上の例のように `❯` の載っている 1 件しか描画されない。
-描画されなかった行は scrollback にも残らないため、`--lines` を増やしても一覧は出てこない。
-`--no-focus` で作った workspace の pane は UI に描画されるまで小さいままで、`pane zoom` でも `pane resize` でも広げられない。
-残りの選択肢は `Up` または `Down` でカーソルを動かすと 1 件ずつ現れるので、そうやって全体を読む。
-
 `❯` を `Yes, I trust this folder` に合わせる。
+上の例のように選択肢が 1 件しか描画されない場合は、`Up` または `Down` でカーソルを動かすと 1 件ずつ現れる。
 動かしたら読み直して位置を確かめる。
 
 ```bash
@@ -192,6 +188,7 @@ herdr pane read <pane_id> --source visible --lines 45
 | pane ID を workspace 番号から推測する | 作成応答の `result.root_pane.pane_id` を読む |
 | trust プロンプトに `pane run` で "1" を送る | `send-keys` でカーソルを合わせ、`Enter` だけを送る |
 | 選択肢を読まずにキーを送る | 先に `pane read` で選択肢と `❯` の位置を読む |
+| 選択肢の一覧を画面に出そうとする | 描画されない行は scrollback に残らず、`pane zoom` でも `pane resize` でも広げられない。`Up` か `Down` で 1 件ずつ読む |
 | `agent_status: idle` を見て起動成功と判断する | プロンプトで止まっていても `idle` を返す。`agent_session.value` で確認する |
 | 前回 Yes を選んだので今回は出ないと考える | ホームディレクトリでは永続化されない。2回目以降も確認する |
 | 起動コマンドを打った時点で完了とする | `agent_session.value` がセッション ID になったことを確認し、Remote Control の URL を伝える |
