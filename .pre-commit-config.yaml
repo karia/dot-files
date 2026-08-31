@@ -8,6 +8,9 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
+      - id: pretty-format-json
+        args: [--autofix, --indent=2]
+        files: ^\.claude/settings\.json$
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
     hooks:
