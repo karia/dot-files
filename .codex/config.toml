@@ -4,3 +4,12 @@ hooks = true
 [tui]
 status_line = ["model-with-reasoning", "current-dir", "git-branch", "pull-request-number", "branch-changes", "run-state", "context-used", "five-hour-limit", "weekly-limit", "used-tokens", "task-progress"]
 status_line_use_colors = true
+
+[projects."/home/karia"]
+trust_level = "trusted"
+
+[projects."/home/karia/ghq/github.com/karia/dot-files"]
+trust_level = "trusted"
+
+[notice]
+hide_rate_limit_model_nudge = true
