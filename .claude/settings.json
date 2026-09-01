@@ -55,6 +55,7 @@
       "Bash(bundle info:*)",
       "Bash(bundle show:*)",
       "Bash(cat:*)",
+      "Bash(cd:*)",
       "Bash(command -v:*)",
       "Bash(echo:*)",
       "Bash(gh api:*)",
@@ -80,6 +81,7 @@
       "Bash(git push:*)",
       "Bash(git rebase:*)",
       "Bash(git rev-parse:*)",
+      "Bash(git worktree:*)",
       "Bash(grep:*)",
       "Bash(hadolint:*)",
       "Bash(jq:*)",
@@ -97,9 +99,7 @@
       "Bash(terraform validate:*)",
       "Bash(tflint:*)",
       "Bash(trivy:*)",
-      "Bash(yamllint:*)",
-      "EnterWorktree",
-      "ExitWorktree"
+      "Bash(yamllint:*)"
     ],
     "ask": [
       "Bash(git push --force:*)",

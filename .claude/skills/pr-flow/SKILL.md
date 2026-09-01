@@ -1,6 +1,6 @@
 ---
 name: pr-flow
-description: 自己流の GitHub Pull Request 作成手順。作業は元ディレクトリを default branch に保ったまま、`EnterWorktree` が `.claude/worktrees/` 配下に作る git worktree で行う。worktree の用意・テーマ別の commit 分割・pre-commit 確認・PR テンプレートの探索と記入・title/description の言語選択・作成後の URL 確認・（`karia/` 配下では）マージ監視と worktree 削除までを一貫して行う。「PRを作って」「PR化して」「この変更をPRにして」「branch切ってPR」「draft PRを作成して」「未コミットの変更を分けてPRにしたい」のような依頼で使用する。対象テーマや JIRA 課題 ID が引数で渡された場合はそれを対象にする。
+description: 自己流の GitHub Pull Request 作成手順。作業は元ディレクトリを default branch に保ったまま、`.claude/worktrees/` 配下に作る git worktree で行う。worktree の用意・テーマ別の commit 分割・pre-commit 確認・PR テンプレートの探索と記入・title/description の言語選択・作成後の URL 確認・（`karia/` 配下では）マージ監視と worktree 削除までを一貫して行う。「PRを作って」「PR化して」「この変更をPRにして」「branch切ってPR」「draft PRを作成して」「未コミットの変更を分けてPRにしたい」のような依頼で使用する。対象テーマや JIRA 課題 ID が引数で渡された場合はそれを対象にする。
 ---
 
 # 自己流 Pull Request 作成手順
@@ -14,26 +14,28 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 - `pwd` で CWD が対象リポジトリのトップかを確認する。ここが**元ディレクトリ**であり、作業後も default branch のまま保つ。git コマンドは素で実行し、`cd <絶対パス> && git ...`・`git -C <パス>`・`GIT_DIR=`/`GIT_WORK_TREE=` によるパス指定はしない（承認プロンプトの発生を避けるため）。
 - 元ディレクトリが default branch（`main`/`master`/`develop` など）にいることを確認する。default 名は決め打ちせず `git symbolic-ref refs/remotes/origin/HEAD` などで確認する。default 以外にいる場合は、元ディレクトリの branch は切り替えない方針のため、依頼者に状況を知らせてから進める。
 - 今回 PR にしたい未コミット変更が元ディレクトリにある場合は `git stash -u -m "pr-flow carry"` で退避する。worktree に未コミット変更は引き継がれないため、後で worktree 側へ持ち込む。
-- 元ディレクトリの default branch を最新化する（`git fetch --prune` → `git pull --ff-only`）。
-- `EnterWorktree` ツールに `name` を渡し、worktree の作成とセッションの移動を一度に行う。自分で `git worktree add` してから `path` で入る形は使わない（理由は後述）。
-  - 作成先は `<元ディレクトリ>/.claude/worktrees/<name>` になる。`name` に含めた `/` は、ディレクトリ名では `+` に置換される。
-  - `name` は 64 文字以内で、`/` 区切りの各セグメントは英数字・ドット・アンダースコア・ハイフンのみを使う。
-  - `name` は PR ごとに一意にする。既存の worktree と同名を渡すと、その worktree を再開し、前回の commit が残った状態から作業を始めることになる。
-  - 基点は `worktree.baseRef` 設定に従い、既定の `fresh` では `origin/<default branch>` から切られる。直前に `git fetch --prune` を済ませていれば、worktree も最新の default branch から始まる。
-- Bash ツールの単独 `cd` で代用しない。`cd` が変えるのは Bash の CWD だけで、セッションの作業ディレクトリ・書き込み権限の範囲・読み込まれる `CLAUDE.md` と設定は元ディレクトリのまま残る。`EnterWorktree` はこれらをまとめて worktree へ移す。
-- 移動後に `pwd` で worktree にいることを確認する。以降の git/gh は worktree の CWD で素の形で実行する。
-- worktree の中で `git branch -m <branch 名>` を実行し、PR 用の branch 名に改名する。`EnterWorktree` が自動で付ける `worktree-<name>` は変更内容を表さないため、そのまま push しない。branch 名は変更内容が分かる名前にする（JIRA 課題があれば ID を含めてよい）。push より前に済ませる。
-- worktree の中身が元ディレクトリの未コミット変更として現れないよう、`EnterWorktree` より前に `git check-ignore .claude/worktrees/` で無視されているかを確認する。照会側にも末尾の `/` を付ける。`.claude/worktrees/` のようなディレクトリ限定パターンは、対象がまだ存在しないと末尾 `/` 無しの引数に一致せず、設定済みでも未設定と誤判定するため。`core.excludesFile` が指すグローバル ignore ファイル（既定は `~/.config/git/ignore`）に記載があれば足りる。通常はこのグローバル設定で賄うため、リポジトリ側の設定は要らない。`.claude/` ごと無視しているリポジトリでも設定は要らない。
+- worktree の中身が元ディレクトリの未コミット変更として現れないよう、worktree を作る前に `git check-ignore .claude/worktrees/` で無視されているかを確認する。照会側にも末尾の `/` を付ける。`.claude/worktrees/` のようなディレクトリ限定パターンは、対象がまだ存在しないと末尾 `/` 無しの引数に一致せず、設定済みでも未設定と誤判定するため。`core.excludesFile` が指すグローバル ignore ファイル（既定は `~/.config/git/ignore`）に記載があれば足りる。通常はこのグローバル設定で賄うため、リポジトリ側の設定は要らない。`.claude/` ごと無視しているリポジトリでも設定は要らない。
   - 無視されていない場合のみリポジトリ側で設定する。worktree を作る前に共通 git dir の `.git/info/exclude` へ書く。commit を挟まずに全 worktree へ効く。
   - `.gitignore` に書くのは、設定自体をリポジトリで共有したい場合に限る。その変更が default branch にマージされるまでは元ディレクトリに ignore 規則が無く、作成済みの `.claude/worktrees/` が未追跡項目として現れるため、`.git/info/exclude` の代わりにはならない。
   - `.gitignore` に書く場合、その変更は元ディレクトリではなく worktree 側の作業 branch で commit する。元ディレクトリは default branch のまま保つ。
+- 元ディレクトリの default branch を最新化する（`git fetch --prune` → `git pull --ff-only`）。
+- `git worktree add --no-track -b <branch 名> .claude/worktrees/<ディレクトリ名> origin/<default branch>` で worktree を作る。
+  - branch 名は変更内容が分かる名前にする（JIRA 課題があれば ID を含めてよい）。`-b` で作成時に付けるため、後から改名しない。
+  - 基点に `origin/<default branch>` を明示する。省略すると元ディレクトリの HEAD が基点になり、直前の最新化が反映されない。
+  - `--no-track` を付ける。付けないと作業 branch の upstream が `origin/<default branch>` になり、`git push` の宛先が default branch を指す。
+  - ディレクトリ名は branch 名と揃えてよい。branch 名に `/` が含まれる場合は `-` などに置き換え、階層を作らない。
+  - ディレクトリ名は PR ごとに一意にする。既存のパスを渡すと `git worktree add` は失敗する。
+- `cd .claude/worktrees/<ディレクトリ名>` で worktree へ移動し、`pwd` で確認する。以降の git/gh は worktree の CWD で素の形で実行する。
+  - `cd` は他のコマンドと繋げず単独で実行する。Bash の CWD は呼び出しをまたいで保たれるため、以降の呼び出しに `cd` を付け直す必要はない。
+  - worktree は元ディレクトリの配下にあるため、単独 `cd` でも呼び出し終了時に巻き戻されない。
+  - セッションの権限ルートと、読み込まれる `CLAUDE.md`・設定は元ディレクトリのまま残る。worktree は同じリポジトリの別 checkout なので、参照される内容は変わらない。
 - 元ディレクトリで退避していれば、worktree 側で `git stash pop` して変更を持ち込む（stash は共通 git dir を共有するため worktree から pop できる）。
 - 今回どの変更を PR にするかを確定する。作業ツリーに複数テーマの変更が混在している場合は、今回の PR 対象テーマだけを扱う。
 
 <details>
-<summary><code>path</code> ではなく <code>name</code> を渡す理由</summary>
+<summary>worktree 専用ツールを使わない理由</summary>
 
-`EnterWorktree` に `path` を渡す形は、対象が `.claude/worktrees/` の外にあると毎回確認プロンプトが出る。worktree への移動は、作業ディレクトリと書き込み権限が移り、移動先の `CLAUDE.md` と設定が読み込まれる操作であり、セッションの権限ルートが移るためである。ユーザーの承認を求めずに進むモードではこの確認を通せず、そこで手順が止まる。`name` を渡す形は作成先が `.claude/worktrees/` に固定されるため、確認が出ない。
+`EnterWorktree` のようなセッションごと worktree に入るツールは Claude Code 固有であり、この skill を共用する他のコーディングエージェントでは手順を再現できない。加えて、そのツールで入るとセッションの権限ルートが worktree へ移るため、承認を求めずに進むモードでは worktree の外にあるファイルの参照が制限される。`git worktree add` と単独 `cd` で組み立てれば、どのエージェントでも同じ手順が使え、権限ルートも元ディレクトリに残る。
 
 </details>
 
@@ -55,7 +57,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 
 ## (3) PR 作成
 
-- 対象 branch を push する。push 前の確認は `secret-scan-before-push` skill に従う。
+- 対象 branch を `git push -u origin HEAD` で push する。`--no-track` で作ったため upstream が未設定であり、`-u` で紐付ける。push 前の確認は `secret-scan-before-push` skill に従う。
 - PR作成前にテンプレートを探す。通常はリポジトリルートの `pull_request_template.md` だが、`.github/` 配下やサブディレクトリにある場合もある。`.github/PULL_REQUEST_TEMPLATE/` も確認する。
 - GitHub CLIを利用してPRを作成する。このとき以下に注意する。
   - title/description の言語は、`karia/` 配下なら英語で統一。それ以外（特に organization 配下）はレビュアーが日本人のため、特別な指示がなければ日本語で記述する。
@@ -99,11 +101,12 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 | 取りこぼし | 正しくは |
 |---|---|
 | 元ディレクトリでその場に branch を切る | worktree を作ってその中で作業し、元ディレクトリは default branch に保つ |
-| `git worktree add` で作った worktree に `path` で入る | `EnterWorktree` に `name` を渡し、作成と移動を一度に行う |
-| 自動で付く `worktree-` 始まりの branch 名のまま push する | push 前に `git branch -m` で PR 用の branch 名に改名する |
+| セッションごと worktree に入るツールで移動する | `git worktree add` で作り、単独 `cd` で移動する |
+| 元ディレクトリの HEAD を基点に worktree を作る | 基点に `origin/<default branch>` を明示する |
+| upstream が default branch を指したまま push する | `git worktree add` に `--no-track` を付ける |
 | 元ディレクトリの未コミット変更を置き去りにする | `git stash -u` で退避し worktree で pop して持ち込む |
-| 単独 `cd` で worktree へ移動したつもりになる | `cd` は Bash の CWD しか変えない。`EnterWorktree` に `name` を渡す |
-| worktree に居たまま削除しようとして失敗する | 先に `ExitWorktree`（`action: "keep"`）で元ディレクトリへ戻ってから削除する |
+| 毎回の Bash 呼び出しに `cd` を付け直す | 単独 `cd` で一度移動すれば以降の呼び出しにも残る |
+| worktree に居たまま削除しようとして失敗する | 先に単独 `cd` で元ディレクトリへ戻ってから削除する |
 | default branch で直接 commit する | worktree の作業 branch で commit する |
 | 元ディレクトリを CWD にして worktree 内のファイルを linter にかける | linter は worktree の CWD で実行する |
 | 全変更を一括ステージングする | `git add -p` でテーマ別に分ける |
