@@ -144,3 +144,6 @@ source_if_exists "${HOME}/.p10k.zsh"
 
 # for mise
 command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
+
+# herdr-automatic-rename: rename tab as soon as a command starts
+source_if_exists "${HOME}"/.config/herdr/plugins/github/herdr-automatic-rename-*/shell/hook.zsh(N[1])
