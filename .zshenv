@@ -68,9 +68,11 @@ add_path_if_exists "${HOME}/.rd/bin"
 # /etc/rancher/k3s/k3s.yaml, so point it at the user copy when one exists.
 [[ -f "${HOME}/.kube/config" ]] && export KUBECONFIG="${HOME}/.kube/config"
 
-# mise: shims for non-interactive shells (scripts, hooks, Claude Code, cron).
-# Interactive shells use `mise activate zsh` (function mode) in .zshrc.
+# mise: include shims in interactive shells too: Claude Code and similar tools
+# snapshot their PATH. Shims provide a fallback when upgrades remove versioned
+# install directories. `mise activate zsh` in .zshrc prepends install directories
+# at precmd, keeping them ahead of shims for normal interactive use.
 # Skip the eval when the shims dir is already on PATH so nested shells don't re-run it.
-if [[ ! -o interactive ]] && [[ ":$PATH:" != *":${HOME}/.local/share/mise/shims:"* ]]; then
+if [[ ":$PATH:" != *":${HOME}/.local/share/mise/shims:"* ]]; then
   command -v mise >/dev/null 2>&1 && eval "$(mise activate --shims)"
 fi
