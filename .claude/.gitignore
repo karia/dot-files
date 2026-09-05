@@ -19,8 +19,6 @@ skills/*
 !skills/publishing-k3s-apps/**
 !skills/sanitize-artifacts/
 !skills/sanitize-artifacts/**
-!skills/secret-scan-before-push/
-!skills/secret-scan-before-push/**
 !skills/tech-writing-style/
 !skills/tech-writing-style/**
 !skills/third-party-review/
