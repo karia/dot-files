@@ -23,3 +23,6 @@ enabled = true
 
 [plugins."merged-branch-cleanup@llm-plugins"]
 enabled = true
+
+[plugins."third-party-review@llm-plugins"]
+enabled = true
