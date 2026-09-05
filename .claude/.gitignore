@@ -19,5 +19,3 @@ skills/*
 !skills/sanitize-artifacts/**
 !skills/tech-writing-style/
 !skills/tech-writing-style/**
-!skills/third-party-review/
-!skills/third-party-review/**

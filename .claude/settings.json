@@ -5,7 +5,8 @@
     "frontend-design@claude-plugins-official": true,
     "merged-branch-cleanup@llm-plugins": true,
     "secret-scan-before-push@llm-plugins": true,
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": true,
+    "third-party-review@llm-plugins": true
   },
   "extraKnownMarketplaces": {
     "llm-plugins": {
