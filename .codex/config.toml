@@ -13,3 +13,10 @@ trust_level = "trusted"
 
 [notice]
 hide_rate_limit_model_nudge = true
+
+[marketplaces.llm-plugins]
+source_type = "git"
+source = "https://github.com/karia/llm-plugins.git"
+
+[plugins."secret-scan-before-push@llm-plugins"]
+enabled = true
