@@ -20,3 +20,6 @@ source = "https://github.com/karia/llm-plugins.git"
 
 [plugins."secret-scan-before-push@llm-plugins"]
 enabled = true
+
+[plugins."merged-branch-cleanup@llm-plugins"]
+enabled = true

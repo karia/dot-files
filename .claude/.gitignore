@@ -11,8 +11,6 @@ skills/*
 !skills/herdr
 !skills/launching-claude-remote-control/
 !skills/launching-claude-remote-control/**
-!skills/merged-branch-cleanup/
-!skills/merged-branch-cleanup/**
 !skills/pr-flow/
 !skills/pr-flow/**
 !skills/publishing-k3s-apps/
