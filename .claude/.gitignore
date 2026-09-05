@@ -15,7 +15,3 @@ skills/*
 !skills/pr-flow/**
 !skills/publishing-k3s-apps/
 !skills/publishing-k3s-apps/**
-!skills/sanitize-artifacts/
-!skills/sanitize-artifacts/**
-!skills/tech-writing-style/
-!skills/tech-writing-style/**

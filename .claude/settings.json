@@ -6,6 +6,7 @@
     "merged-branch-cleanup@llm-plugins": true,
     "secret-scan-before-push@llm-plugins": true,
     "superpowers@claude-plugins-official": true,
+    "tech-writing-style@llm-plugins": true,
     "third-party-review@llm-plugins": true
   },
   "extraKnownMarketplaces": {
