@@ -26,3 +26,6 @@ enabled = true
 
 [plugins."third-party-review@llm-plugins"]
 enabled = true
+
+[plugins."tech-writing-style@llm-plugins"]
+enabled = true
