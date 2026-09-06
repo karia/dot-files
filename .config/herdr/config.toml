@@ -16,10 +16,23 @@ navigate_workspace_down = ["down", "j"]
 name = "terminal"
 auto_switch = false
 
+[worktrees]
+directory = ".claude/worktrees"
+
 [ui]
 agent_panel_sort = "spaces"
 # herdr-automatic-rename: 新規タブの名前入力を手リネーム扱いにしない
 prompt_new_tab_name = false
+
+tab_bar_right = [
+  { type = "zoom" },
+  { type = "hostname" },
+  { type = "command", command = "~/.config/herdr/status.sh mem", interval_seconds = 10, timeout_seconds = 2 },
+  { type = "command", command = "~/.config/herdr/status.sh uptime", interval_seconds = 60, timeout_seconds = 2 },
+  { type = "datetime", format = "%m/%d(%a) %H:%M:%S" },
+]
+tab_bar_right_separator = " · "
+tab_bar_position = "bottom"
 
 # エージェント完了を OS 通知で受け取る
 [ui.toast]
