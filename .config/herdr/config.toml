@@ -21,6 +21,16 @@ agent_panel_sort = "spaces"
 # herdr-automatic-rename: 新規タブの名前入力を手リネーム扱いにしない
 prompt_new_tab_name = false
 
+# タブ行右端のステータス領域（hostname/datetime は herdr 組み込み、他は status.sh）
+tab_bar_right = [
+  { type = "zoom" },
+  { type = "hostname" },
+  { type = "command", command = "~/.config/herdr/status.sh mem", interval_seconds = 10, timeout_seconds = 2 },
+  { type = "command", command = "~/.config/herdr/status.sh uptime", interval_seconds = 60, timeout_seconds = 2 },
+  { type = "datetime", format = "%m/%d(%a) %H:%M:%S" },
+]
+tab_bar_right_separator = " · "
+
 # エージェント完了を OS 通知で受け取る
 [ui.toast]
 delivery = "system"
