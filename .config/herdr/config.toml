@@ -31,6 +31,9 @@ tab_bar_right = [
 ]
 tab_bar_right_separator = " · "
 
+# タブ行は下端に置く
+tab_bar_position = "bottom"
+
 # エージェント完了を OS 通知で受け取る
 [ui.toast]
 delivery = "system"
