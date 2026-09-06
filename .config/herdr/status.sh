@@ -1,5 +1,4 @@
 #!/bin/sh
-# Herdr tab bar right status. Prints one metric, or nothing when unavailable.
 set -u
 
 case "${1:-}" in

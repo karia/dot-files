@@ -16,9 +16,6 @@ navigate_workspace_down = ["down", "j"]
 name = "terminal"
 auto_switch = false
 
-# worktree の置き場を Claude Code / pr-flow と揃える。
-# 相対パスは対象リポジトリのルートから解決され、実体は
-# <repo>/.claude/worktrees/<repo>/<branch> になる。
 [worktrees]
 directory = ".claude/worktrees"
 
@@ -27,7 +24,6 @@ agent_panel_sort = "spaces"
 # herdr-automatic-rename: 新規タブの名前入力を手リネーム扱いにしない
 prompt_new_tab_name = false
 
-# タブ行右端のステータス領域（hostname/datetime は herdr 組み込み、他は status.sh）
 tab_bar_right = [
   { type = "zoom" },
   { type = "hostname" },
@@ -36,8 +32,6 @@ tab_bar_right = [
   { type = "datetime", format = "%m/%d(%a) %H:%M:%S" },
 ]
 tab_bar_right_separator = " · "
-
-# タブ行は下端に置く
 tab_bar_position = "bottom"
 
 # エージェント完了を OS 通知で受け取る
