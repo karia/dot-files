@@ -10,10 +10,15 @@
 .config/google-chrome-for-testing/
 .config/helm/
 .config/iterm2
+.config/kanshi/
 .config/mimeapps.list
 .config/ookla/
+.config/pulse/
 .config/raycast
 .config/tailscale/
+.config/user-dirs.dirs
+.config/user-dirs.locale
+.config/wf-panel-pi/
 .config/wslu/
 .gitconfig-work
 credentials.json
