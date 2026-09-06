@@ -16,6 +16,12 @@ navigate_workspace_down = ["down", "j"]
 name = "terminal"
 auto_switch = false
 
+# worktree の置き場を Claude Code / pr-flow と揃える。
+# 相対パスは対象リポジトリのルートから解決され、実体は
+# <repo>/.claude/worktrees/<repo>/<branch> になる。
+[worktrees]
+directory = ".claude/worktrees"
+
 [ui]
 agent_panel_sort = "spaces"
 # herdr-automatic-rename: 新規タブの名前入力を手リネーム扱いにしない
