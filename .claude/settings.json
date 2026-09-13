@@ -2,6 +2,7 @@
   "agentPushNotifEnabled": true,
   "effortLevel": "high",
   "enabledPlugins": {
+    "cloudflare@cloudflare": true,
     "frontend-design@claude-plugins-official": true,
     "merged-branch-cleanup@llm-plugins": true,
     "ponytail@ponytail": true,
@@ -11,6 +12,12 @@
     "third-party-review@llm-plugins": true
   },
   "extraKnownMarketplaces": {
+    "cloudflare": {
+      "source": {
+        "repo": "cloudflare/skills",
+        "source": "github"
+      }
+    },
     "llm-plugins": {
       "source": {
         "repo": "karia/llm-plugins",
