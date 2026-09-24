@@ -1,12 +1,12 @@
 ---
 name: home-server-update
-description: 自宅の Linux サーバー群を最新化する定例手順。各ホストへ Herdr の pane から ssh し、dot-files の git pull とローカル変更の PR 化、mise 管理ツールの更新（mise up）、Claude Code のマーケットプレイスとプラグインの更新までを行う。Tailscale SSH の認証 URL が出たら依頼者に承認を依頼する。「ホームサーバーを最新化して」「自宅サーバーの mise up して」「特定のホストのツールを更新して」のような依頼で使用する。対象ホストが引数で渡された場合はそのホストだけを対象にする。
+description: 自宅の Linux サーバー群を最新化する定例手順。各ホストへ Herdr の pane から ssh し、dot-files の git pull とローカル変更の PR 化、mise 管理ツールの更新（mise up）、Claude Code のマーケットプレイスとプラグインの更新までを行う。Tailscale SSH の認証 URL が出たら依頼者に承認を依頼する。「ホームサーバーを最新化して」「自宅サーバーの mise up して」「<ホスト名> のツールを更新して」のような依頼で使用する。対象ホストが引数で渡された場合はそのホストだけを対象にする。
 ---
 
 # 自宅の Linux サーバー群の最新化手順
 
 > [!IMPORTANT]
-> この手順は Herdr 上のセッション（`HERDR_ENV=1`）で実行する。この skill の起動は Herdr を使う指示を含む。Herdr の外で起動されたときは、依頼者に伝えて止まる。
+> この手順は Herdr 上のセッション（`HERDR_ENV=1`）で、`herdr` skill を使って実行する。Herdr の外で起動されたときは、依頼者に伝えて止まる。
 
 自宅の Linux サーバー群で、dot-files・mise 管理ツール・Claude Code プラグインをまとめて最新化する。各ホストへは Herdr の pane から Tailscale SSH で入り、pane 上でコマンドを実行する。
 
@@ -50,7 +50,7 @@ tailscale status --json | jq -r '(.Self | .me = true), (.Peer[] | .me = false) |
 ## (1) 接続
 
 1. ホストごとに pane を作る。
-2. 4 列目が `true` のホストは、その pane で直接作業する。手元のホスト名はループバックアドレスに解決されることがあり、ssh すると手元の sshd につながる。
+2. 4 列目が `true` のホストは手元のホストで、pane を作った時点でそのシェルに入っている。その pane で直接作業する。
 3. それ以外のホストでは `tailscale ssh <ホスト>` を実行する。`tailscale ssh` は tailnet から取得した鍵でホスト鍵を検証する。素の `ssh` は、初めて接続するホストでホスト鍵の確認に止まる。
 4. `# To authenticate, visit: https://login.tailscale.com/a/...` と出たら、URL を依頼者に伝えて承認を依頼する。承認されるとそのままログインが進む。`--timeout 100000` を付けた `herdr pane wait-output` を、ログインが済むまで繰り返す。Bash ツールの呼び出しの既定の上限は 2 分なので、1 回の待ちはそれより短くする。
 5. ログイン後に `hostname` を実行し、意図したホストに入れたか確かめる。
@@ -61,8 +61,8 @@ tailscale status --json | jq -r '(.Self | .me = true), (.Peer[] | .me = false) |
 
 `~/ghq/github.com/karia/dot-files` で `git pull --ff-only` する。mise の設定（`~/.config/mise/config.toml`）は dot-files へのシンボリックリンクなので、先に pull して最新の設定で (3) を実行する。
 
-- default branch にいるかを `git branch --show-current` で確かめる。いなければ、報告に書いて pull を飛ばす。branch はそのままにする。
-- pull の後に、止まった場合も含めて `git status --short` で追跡対象ファイルの変更を確かめる。あれば次の「ローカル変更の扱い」に従う。origin が触っていないファイルの変更は pull を止めないので、pull の成否だけでは見つからない。
+- default branch にいるかを `git branch --show-current` で確かめる。いなければ、branch はそのままにして報告に書き、pull を飛ばす。
+- pull の後に、止まった場合も含めて `git status --short` で追跡対象ファイルの変更を確かめる。あれば次の「ローカル変更の扱い」に従う。origin 側で変更されていないファイルのローカル変更は pull を止めないので、pull の成否だけでは見つからない。
 - 未追跡ファイルは触らない。
 
 ### ローカル変更の扱い
@@ -97,7 +97,7 @@ tailscale status --json | jq -r '(.Self | .me = true), (.Peer[] | .me = false) |
 
 `mise up` は 1 ホストずつ直列に実行する。どのホストも同じ自宅回線から取得するので、同時に走らせると配布元の rate limit に当たりうる。
 
-mise 本体は APT で管理しているので、この手順の対象外とする。更新には sudo の権限が要る。`mise up` の出力に mise 本体の新版の通知が出ても、報告に添えるだけにする。
+mise 本体は APT で管理しており、更新に sudo の権限が要るので、この手順の対象外とする。`mise up` の出力に mise 本体の新版の通知が出ても、報告に添えるだけにする。
 
 dot-files の mise 設定の `minimum_release_age` により、公開から間もない版は見送られる。このとき出る WARN は正常な動作なので、報告に添えるだけでよい。
 
@@ -116,12 +116,12 @@ claude plugin list --json | jq -r '.[] | "\(.id)\t\(.scope)\t\(.version)"' | dif
 ```
 
 - `claude plugin update` はプラグインを 1 つずつ受け取る。scope は `list --json` の値を `--scope` で明示して渡す。
-- 結果に `shownCommand` が出たら、マーケットプレイスが宣言したコマンドの確認を求められている。コマンドと sha256 を依頼者に見せ、了承を得てから `--accept-command <sha256>` を付けて再実行する。確認を飛ばす `-y` は付けない。
+- 結果に `shownCommand` が出たら、マーケットプレイスが宣言したコマンドの確認を求められている。コマンドと sha256 を依頼者に見せ、了承を得てから `--accept-command <sha256>` を付けて再実行する。
 - マーケットプレイスから消えたプラグインは `not found` で失敗する。報告し、`claude plugin uninstall` するかを依頼者に確かめる。
 
 ## (5) Herdr サーバーの再起動
 
-`mise up` で herdr の版が上がったホストでは、動いているサーバーが旧版のままなので、クライアントとの版の不一致が出る。依頼者の了承を得てから再起動する。
+`mise up` で `herdr` の版が上がったホストでは、動いているサーバーが旧版のままなので、クライアントとの版の不一致が出る。依頼者の了承を得てから再起動する。
 
 ```bash
 herdr server stop
@@ -151,11 +151,10 @@ setsid -f herdr server >/dev/null 2>&1 </dev/null
 | 一覧にないホストを対象にする | `tag:home-server` と `tag:wsl` の付いたホストだけを対象にする |
 | `tag:wsl` のホストに入れないことを失敗扱いにする | 飛ばして報告する |
 | 素の `ssh` で入る | `tailscale ssh` で入る |
-| 手元のホストにも ssh する | pane で直接作業する |
+| 手元のホストにも ssh する | pane で直接作業する。手元のホスト名はループバックアドレスに解決され、手元の sshd につながることがある |
 | dot-files を pull する前に `mise up` する | 先に pull する |
 | pull が通ったのでローカル変更はないと考える | pull の後に `git status --short` で確かめる |
 | ローカル変更を stash する | 「扱いの判定」の表に従う |
-| JSON 以外のファイルを並べ替えて比べ、破棄する | 実際の差分として PR にする |
 | mise 本体の新版通知に従って更新する | 報告に添えるだけにする |
 | 複数ホストの `mise up` を同時に走らせる | 1 ホストずつ直列にする |
 | `claude plugin update` だけ実行する | 先に `claude plugin marketplace update` を実行する |
