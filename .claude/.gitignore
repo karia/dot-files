@@ -9,6 +9,8 @@ hooks/*
 !skills/
 skills/*
 !skills/herdr
+!skills/home-server-update/
+!skills/home-server-update/**
 !skills/launching-claude-remote-control/
 !skills/launching-claude-remote-control/**
 !skills/pr-flow/
