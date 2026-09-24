@@ -5,26 +5,33 @@ description: 自宅の Linux サーバー群を最新化する定例手順。各
 
 # ホームサーバー最新化手順
 
-自宅の Linux サーバー群で、dot-files・mise 管理ツール・Claude Code プラグインをまとめて最新化する。各ホストへは Herdr の pane から ssh し、pane 上でコマンドを実行する。pane の操作方法は `herdr` skill に従う。
+自宅の Linux サーバー群で、dot-files・mise 管理ツール・Claude Code プラグインをまとめて最新化する。各ホストへは Herdr の pane から Tailscale SSH で入り、pane 上でコマンドを実行する。pane の操作方法は `herdr` skill に従う。
 
 ## 対象ホスト
 
-Tailscale でタグ `tag:home-server` を付けたノードが対象になる。以下で対象ホストの名前とオンライン状態を列挙する。
+Tailscale でタグ `tag:home-server` または `tag:wsl` を付けたノードが対象になる。以下で名前・タグ・オンライン状態・作業中のホストかどうかを列挙する。
 
 ```bash
-tailscale status --json | jq -r '(.Self, .Peer[]) | select((.Tags // []) | index("tag:home-server")) | [(.DNSName | split(".")[0]), .Online] | @tsv'
+tailscale status --json | jq -r '(.Self | .me = true), (.Peer[] | .me = false) | select((.Tags // []) | index("tag:home-server") or index("tag:wsl")) | [(.DNSName | split(".")[0]), (.Tags | join(",")), .Online, .me] | @tsv'
 ```
 
-- ssh 先には 1 列目の名前を使う。`HostName` は OS 上のホスト名で、Tailscale 上の名前と異なることがある。
+- 接続先には 1 列目の名前を使う。`HostName` は OS 上のホスト名で、Tailscale 上の名前と異なることがある。
 - 1 件も出ないときは、タグが付いていない。依頼者に伝えて止まる。
 
-名前が `-wsl` で終わるホストは WSL で、Windows の電源が切れていて常時起動していない。オフラインのとき、または ssh がタイムアウトしたときは、そのホストを飛ばして報告に書く。それ以外のホストがオフラインなら、異常として報告する。
+| タグ | オフラインのとき |
+|---|---|
+| `tag:home-server` | 常時起動のはずなので、異常として報告する |
+| `tag:wsl` | 常時起動していないので、飛ばして報告に書く |
 
-## (1) ssh 接続
+## (1) 接続
 
-1. ホストごとに pane を作り、`ssh -o ConnectTimeout=10 <ホスト>` を実行する。今いるホストが対象でも、同じく ssh で入る。
-2. `# To authenticate, visit: https://login.tailscale.com/a/...` と出たら、URL を依頼者に伝えて承認を依頼する。承認されるとそのままログインが進むので、プロンプトが出るまで `herdr pane wait-output` で待つ。
-3. ログイン後に `hostname` を実行し、意図したホストに入れたか確かめる。
+1. ホストごとに pane を作る。
+2. 4 列目が `true` のホストは、この手順を実行している手元のホストなので、接続せずにその pane で直接作業する。
+3. それ以外のホストでは `tailscale ssh <ホスト>` を実行する。素の `ssh` は、初めて接続するホストでホスト鍵の確認に止まる。`tailscale ssh` は tailnet から取得した鍵で検証するので止まらない。
+4. `# To authenticate, visit: https://login.tailscale.com/a/...` と出たら、URL を依頼者に伝えて承認を依頼する。承認されるとそのままログインが進むので、プロンプトが出るまで `herdr pane wait-output` で待つ。
+5. ログイン後に `hostname` を実行し、意図したホストに入れたか確かめる。
+
+`tailnet policy does not permit you to SSH to this node` で断られたときは、Tailscale の ACL に、そのタグを宛先とする SSH ルールが足りない。依頼者に伝え、そのホストは飛ばす。
 
 pane でコマンドの完了を待つときは、コマンドの末尾で終了マーカーを出し、`herdr pane wait-output --match` で待つ。マーカーは `echo __DO""NE__` のように引用符で分断する。そのまま書くと、入力したコマンド行の表示にマッチしてすぐ返ってしまう。
 
@@ -88,10 +95,12 @@ setsid -f herdr server >/dev/null 2>&1 </dev/null
 
 | 取りこぼし | 正しくは |
 |---|---|
-| Bash ツールから直接 `ssh <ホスト> '<コマンド>'` を実行する | pane から ssh する。認証 URL の待ちで Bash ツールの呼び出しがタイムアウトする |
+| Bash ツールから直接 `tailscale ssh <ホスト> '<コマンド>'` を実行する | pane から入る。認証 URL の待ちで Bash ツールの呼び出しがタイムアウトする |
 | 認証 URL を放置して待ち続ける | URL を依頼者に伝えて承認を依頼する |
-| 対象ホストを決め打ちする | `tag:home-server` の付いたノードを `tailscale status --json` から拾う |
-| `-wsl` のホストに入れないことを失敗扱いにする | 常時起動していないので、飛ばして報告する |
+| 対象ホストを決め打ちする | `tag:home-server` と `tag:wsl` の付いたノードを `tailscale status --json` から拾う |
+| `tag:wsl` のホストに入れないことを失敗扱いにする | 常時起動していないので、飛ばして報告する |
+| 素の `ssh` で入る | `tailscale ssh` で入る。素の `ssh` はホスト鍵の確認で止まり、手元のホスト名はループバックに解決されることがある |
+| 手元のホストにも ssh する | 接続せず、pane で直接作業する |
 | dot-files を pull する前に `mise up` する | 先に pull し、最新の mise 設定で更新する |
 | 未コミット変更を stash して pull する | 触らずに報告する |
 | APT で入れた mise を sudo で更新しようとする | コマンドを報告し、依頼者に任せる |
