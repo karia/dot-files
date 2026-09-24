@@ -71,7 +71,6 @@
     ]
   },
   "inputNeededNotifEnabled": true,
-  "model": "claude-opus-5",
   "permissions": {
     "allow": [
       "Bash(actionlint:*)",
