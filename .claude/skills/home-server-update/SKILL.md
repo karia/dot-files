@@ -1,6 +1,6 @@
 ---
 name: home-server-update
-description: 自宅の Linux サーバー群を最新化する定例手順。各ホストへ Herdr の pane から ssh し、dot-files の git pull、mise 本体と mise 管理ツールの更新（mise up）、Claude Code のマーケットプレイスとプラグインの更新までを行う。Tailscale SSH の認証 URL が出たら依頼者に承認を依頼する。「ホームサーバーを最新化して」「自宅サーバーの mise up して」「yuno04 のツールを更新して」「home-server-update」のような依頼で使用する。対象ホストが引数で渡された場合はそのホストだけを対象にする。
+description: 自宅の Linux サーバー群を最新化する定例手順。各ホストへ Herdr の pane から ssh し、dot-files の git pull とローカル変更の PR 化、mise 管理ツールの更新（mise up）、Claude Code のマーケットプレイスとプラグインの更新までを行う。Tailscale SSH の認証 URL が出たら依頼者に承認を依頼する。「ホームサーバーを最新化して」「自宅サーバーの mise up して」「yuno04 のツールを更新して」「home-server-update」のような依頼で使用する。対象ホストが引数で渡された場合はそのホストだけを対象にする。
 ---
 
 # ホームサーバー最新化手順
@@ -40,13 +40,38 @@ pane でコマンドの完了を待つときは、コマンドの末尾で終了
 `~/ghq/github.com/karia/dot-files` で `git pull --ff-only` する。mise の設定（`~/.config/mise/config.toml`）は dot-files へのシンボリックリンクなので、先に pull して最新の設定で (3) を実行する。
 
 - default branch にいるかを `git branch --show-current` で確かめる。いなければ切り替えず、報告に書いて pull を飛ばす。
-- 未コミット変更で pull が止まったら、stash や破棄はせず、ファイル名を報告に書いて先へ進む。
+- 追跡対象ファイルの変更で pull が止まったら、次の「ローカル変更の扱い」に従う。未追跡ファイルは pull を妨げないので触らない。
+
+### ローカル変更の扱い
+
+`git status --short` で変更されたファイルを挙げ、ファイルごとに差分の中身で扱いを決める。stash はしない。
+
+#### 扱いの判定
+
+| 差分の中身 | 扱い |
+|---|---|
+| origin の default branch と同じ | 取り込み済みの変更なので、`git checkout -- <ファイル>` で破棄する |
+| 並び順だけが違う | 意味のない差分なので、`git checkout -- <ファイル>` で破棄する |
+| 実際の差分がある | PR にする |
+
+- origin と同じかは、`git fetch` の後に `git diff --quiet origin/<default branch> -- <ファイル>` の終了コードが 0 かで確かめる。
+- 並び順だけかは、両方を並べ替えてから比べる。ツールが設定ファイルを書き戻すときに、キーの順序を入れ替えることがある。
+  - JSON は `diff <(git show HEAD:<ファイル> | jq -S .) <(jq -S . <ファイル>)` の出力が空かで確かめる。
+  - それ以外の形式は `diff <(git show HEAD:<ファイル> | sort) <(sort <ファイル>)` の出力が空かで確かめる。
+
+破棄したファイルだけで止まっていたなら、もう一度 `git pull --ff-only` する。
+
+#### 実際の差分を PR にする
+
+1. `git diff -- <ファイル>` で差分を読む。並び替えが混ざっていれば、HEAD の並び順に戻し、実際の差分だけを残す。
+2. 手元の dot-files で、`pr-flow` skill に従って PR を作る。別ホストの差分は pane で読み取り、手元の worktree に反映する。同じ差分が複数のホストにあれば、1 つの PR にまとめる。
+3. そのホストのローカル変更は残したまま、今回の pull は飛ばして先へ進む。PR がマージされれば、次回の実行で「origin の default branch と同じ」に当たって破棄される。
 
 ## (3) mise の更新
 
-1. `mise self-update -y` で mise 本体を更新する。
-   - APT で入れたホストでは `sudo apt update && sudo apt install --only-upgrade mise` を促すメッセージが出て、更新されない。sudo にはパスワードが要るので実行せず、そのコマンドを報告に書く。
-2. ホームディレクトリで `mise up 2>&1 | tail -40` を実行する。
+ホームディレクトリで `mise up 2>&1 | tail -40` を実行する。
+
+mise 本体は更新しない。APT で入れたホストでは `mise self-update` が使えず、`sudo apt upgrade` を実行する権限もない。
 
 `mise up` はホストをまたいで同時に走らせず、1 ホストずつ直列にする。どのホストも同じ自宅回線から取得するため、同時に走らせると配布元の rate limit に当たりうる。
 
@@ -84,8 +109,7 @@ setsid -f herdr server >/dev/null 2>&1 </dev/null
 ホストごとに以下をまとめる。
 
 - 接続：接続できたか。飛ばしたホストはその理由。
-- dot-files：pull の結果。未コミット変更で止まった場合はファイル名。
-- mise 本体：更新前後の版。APT のため未更新なら、実行すべきコマンド。
+- dot-files：pull の結果。破棄したファイルと、その理由。作った PR の URL。
 - mise up：更新したツールの `旧版 → 新版`。メジャーバージョンが上がったものは目立たせる。
 - Claude Code プラグイン：版が上がったものの `旧版 → 新版`。反映には Claude Code の再起動が要る。
 - herdr サーバー：再起動したか。
@@ -102,8 +126,8 @@ setsid -f herdr server >/dev/null 2>&1 </dev/null
 | 素の `ssh` で入る | `tailscale ssh` で入る。素の `ssh` はホスト鍵の確認で止まり、手元のホスト名はループバックに解決されることがある |
 | 手元のホストにも ssh する | 接続せず、pane で直接作業する |
 | dot-files を pull する前に `mise up` する | 先に pull し、最新の mise 設定で更新する |
-| 未コミット変更を stash して pull する | 触らずに報告する |
-| APT で入れた mise を sudo で更新しようとする | コマンドを報告し、依頼者に任せる |
+| ローカル変更を stash して pull する | 差分を判定し、取り込み済みや並び順だけなら破棄し、実際の差分なら PR にする |
+| `mise self-update` や `sudo apt upgrade` で mise 本体を更新する | 実行しない。`mise up` だけにする |
 | 複数ホストの `mise up` を同時に走らせる | 1 ホストずつ直列にする |
 | `claude plugin update` だけ実行する | 先に `claude plugin marketplace update` を実行する |
 | 自分が載っているホストで `herdr server stop` する | そのホストは依頼者に手動での再起動を頼む |
