@@ -1,6 +1,6 @@
 ---
 name: pr-flow
-description: 自己流の GitHub Pull Request 作成手順。作業は元ディレクトリを default branch に保ったまま、`.claude/worktrees/` 配下に作る git worktree で行う。worktree の用意・テーマ別の commit 分割・pre-commit 確認・PR テンプレートの探索と記入・title/description の言語選択・作成後の URL 確認・（`karia/` 配下では）マージ監視と worktree 削除までを一貫して行う。「PRを作って」「PR化して」「この変更をPRにして」「branch切ってPR」「draft PRを作成して」「未コミットの変更を分けてPRにしたい」のような依頼で使用する。対象テーマや JIRA 課題 ID が引数で渡された場合はそれを対象にする。
+description: 自己流の GitHub Pull Request 作成手順。作業は元ディレクトリを default branch に保ったまま、`.claude/worktrees/` 配下に作る git worktree で行う。worktree の用意・テーマ別の commit 分割・pre-commit 確認・PR テンプレートの探索と記入・title/description の言語選択・作成後の URL 確認・残タスク解消後の ready for review 化までを一貫して行う。「PRを作って」「PR化して」「この変更をPRにして」「branch切ってPR」「draft PRを作成して」「未コミットの変更を分けてPRにしたい」のような依頼で使用する。対象テーマや JIRA 課題 ID が引数で渡された場合はそれを対象にする。
 ---
 
 # 自己流 Pull Request 作成手順
@@ -61,8 +61,8 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 - PR作成前にテンプレートを探す。通常はリポジトリルートの `pull_request_template.md` だが、`.github/` 配下やサブディレクトリにある場合もある。`.github/PULL_REQUEST_TEMPLATE/` も確認する。
 - GitHub CLIを利用してPRを作成する。このとき以下に注意する。
   - title/description の言語は、`karia/` 配下なら英語で統一。それ以外（特に organization 配下）はレビュアーが日本人のため、特別な指示がなければ日本語で記述する。
-  - draft を求められた場合は `--draft` を付けて draft PR として作成する。
-  - 第三者レビューを回す場合は draft のまま作成し、以降は `third-party-review` に従う。レビュアーの起動・指摘への返信・ready for review 化・マージ監視の開始まで、同 skill が扱う。
+  - PR は常に `--draft` を付けて作成する。作業完了時の扱いは (4) に従う。
+  - 第三者レビューを回す場合、レビューの進め方は `third-party-review` に従う。
 
 ### description記述方法
 
@@ -86,15 +86,9 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 
 - 作成した PR の URL を `open` コマンドで開き、テンプレート記入・description・課題紐付けを目視確認する。
 - 今回の対象外のテーマの変更が作業ツリーに残っている場合は、今回の PR に含めず、別 PR・別 commit として扱う。
-- `karia/` 配下かつ非 draft の PR の場合は、マージ監視を仕掛ける。`karia/` 配下では PR 作成後すぐにマージされることが多く、都度「default branch に戻って」と指示する手間を省くため。Claude Code のスケジュール済みタスク（`/loop` skill）を使い、独自の shell ループは組まない。
-  - 各回で PR の state とコメントを確認する。対象は会話コメント、本文のある review、行コメントとする。コメントがあれば state にかかわらずループを止め、内容を確認して対応を検討する。行コメントへの対応結果は同じスレッドに返信し、修正した場合は push 後の commit の GitHub URL を添える。返信と resolve の詳細は `third-party-review` の「(4) 指摘への対応と返信」に従う。
-  - 間隔は指数関数的 backoff にする。`/loop` を間隔指定なしで仕掛け（動的間隔モード）、待ち時間の伸ばし方をプロンプト自体に書く。初回 2 分ですぐマージされるケースを拾い、レビュー待ちで長時間かかるケースでは確認回数を抑えるため。上限 60 分は `ScheduleWakeup` の上限に合わせている。コメント、マージ、close を検知したら自分でループを止める。PR 番号は作成時の出力から取得する。作業は worktree の中で行うため、後片付けは `merged-branch-cleanup` に委ね、プロンプトに元ディレクトリと worktree の絶対パスを埋め込む。プロンプトは毎回同じものが再投入され、何回目の確認かはプロンプト自体からは分からないため、待ち時間を毎回発言に残させて次回そこから決められる形にする。マージ待ちはイベント待ちに見えるが `Monitor` は使わない。即時 wake すると backoff が効かなくなるため。例:
-    ```text
-    /loop PR #<PR番号> の state、会話コメント、review を `gh pr view <PR番号> --json state,comments,reviews` で確認し、行コメントを `gh api repos/<owner>/<repo>/pulls/<PR番号>/comments` で確認する。会話コメント、本文のある review、行コメントのいずれかがあれば state にかかわらずループを止め、内容を確認して対応を検討する。行コメントへの対応結果は同じスレッドに返信し、修正した場合は push 後の commit の GitHub URL を添える。コメントがなく MERGED なら merged-branch-cleanup の手順で後片付けする（元ディレクトリ <元repo絶対パス> へ戻り、worktree <worktree絶対パス> と作業 branch を削除）。済んだらループを終了する。コメントがなく CLOSED（未マージ）ならループを止めて知らせる。コメントがなく OPEN なら次の確認まで待つ。待ち時間は前回宣言した値の 2 倍（初回は 2 分、60 分で頭打ち）とし、毎回「次の確認まで N 分待つ」と明記してから待つ。`Monitor` は使わない
-    ```
-  - マージ検知時の後片付けは `merged-branch-cleanup` に従う。元ディレクトリへ戻る・default branch の最新化・worktree と作業 branch の削除・破壊的操作の確認ゲートまで、すべて同 skill が扱う。
-  - スケジュール済みタスクはセッションスコープ（セッション終了で停止、`--resume`/`--continue` で 7 日以内なら復元）。停止したいときは待機中に `Esc`、または Claude にタスクのキャンセルを依頼する（内部的には `ScheduleWakeup` を `stop: true` で呼ぶ）。
-- draft PR や `karia/` 以外のリポジトリでは、この監視は仕掛けない。worktree の作成・削除は監視の有無に関わらず行うため、監視を仕掛けない場合の worktree 削除は、マージ後に依頼者の指示で `merged-branch-cleanup` の手順で行う。
+- 第三者レビューとその指摘対応などの残タスクがすべて片付いたら、作業完了とする。
+- 作業完了時は、依頼者が draft を指定していれば draft のまま終える。指定がないとき、または ready にするよう指示があるときは `gh pr ready <PR番号>` で ready for review にする。
+- マージ後の worktree と作業 branch の削除は、依頼者の指示を受けてから `merged-branch-cleanup` の手順で行う。
 
 ## よくある取りこぼし
 
@@ -114,7 +108,4 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 | テンプレートをルートだけ探す | `.github/` やサブディレクトリも探す |
 | description にコードで分かることを詳述する | ミニマムに保つ |
 | 作成して終わりにする | `open` で URL を開いて確認する |
-| `karia/` の PR をマージ後に手動で default branch に戻る | 作成時に `/loop` でマージ監視を仕掛け、マージ検知で自動復帰する |
-| マージ監視に独自 shell ループを組む | Claude Code のスケジュール済みタスク（`/loop`）を使う |
-| マージ監視で state だけを確認する | state とコメントを確認し、コメントがあれば対応のため監視を止める |
-| マージ監視を短い固定間隔で回し続ける | 指数関数的 backoff（2 分から倍々、上限 60 分）で伸ばす |
+| 最初から ready で PR を作る | 常に draft で作り、作業完了時に指定に応じて ready にする |
