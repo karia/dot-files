@@ -13,7 +13,7 @@ herdr = "latest"
 node = "lts"
 "npm:@openai/codex" = "latest"
 "npm:ccusage" = "latest"
-"npm:pnpm" = "latest"
+"npm:pnpm" = { version = "latest", allow_builds = ["pnpm"] }
 "npm:prh" = "latest"
 "npm:prh-languageserver" = { version = "1.0.1", allow_low_downloads = true }
 pinact = "latest"
