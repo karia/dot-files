@@ -40,6 +40,7 @@ case ${OSTYPE} in
   darwin*)
     # mysql-client 8.4 (HOMEBREW_PREFIX is set by brew shellenv above)
     add_path_if_exists "$HOMEBREW_PREFIX/opt/mysql-client@8.4/bin"
+    [[ -f /opt/homebrew/etc/ca-certificates/cert.pem ]] && export SSL_CERT_FILE=/opt/homebrew/etc/ca-certificates/cert.pem
     ;;
   linux*)
     # Linuxbrew
