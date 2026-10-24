@@ -29,6 +29,9 @@ trust_level = "trusted"
 [projects."/home/karia/ghq/github.com/karia/yuno04-k3s"]
 trust_level = "trusted"
 
+[projects."/home/karia/ghq/github.com/karia/trpg-scenario-session-catalog"]
+trust_level = "trusted"
+
 [notice]
 hide_rate_limit_model_nudge = true
 
