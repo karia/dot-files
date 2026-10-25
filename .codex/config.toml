@@ -10,6 +10,7 @@ screen_reader_detection_done = true
 
 [tui.model_availability_nux]
 gpt-6-astra = 4
+"gpt-6.1-sol" = 1
 
 [projects."/home/karia"]
 trust_level = "trusted"
@@ -27,6 +28,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/home/karia/ghq/github.com/karia/yuno04-k3s"]
+trust_level = "trusted"
+
+[projects."/home/karia/ghq/github.com/karia/trpg-scenario-session-catalog"]
 trust_level = "trusted"
 
 [notice]
