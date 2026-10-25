@@ -18,6 +18,7 @@ node = "lts"
 "npm:prh-languageserver" = { version = "1.0.1", allow_low_downloads = true }
 pinact = "latest"
 prek = "latest"
+terraform = "1.15.8"
 uv = "latest"
 
 [settings]
