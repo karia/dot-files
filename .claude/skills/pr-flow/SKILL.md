@@ -1,6 +1,6 @@
 ---
 name: pr-flow
-description: 自己流の GitHub Pull Request 作成手順。作業は元ディレクトリを default branch に保ったまま、`.claude/worktrees/` 配下に作る git worktree で行う。worktree の用意・テーマ別の commit 分割・pre-commit 確認・PR テンプレートの探索と記入・title/description の言語選択・作成後の URL 確認・残タスク解消後の ready for review 化までを一貫して行う。「PRを作って」「PR化して」「この変更をPRにして」「branch切ってPR」「draft PRを作成して」「未コミットの変更を分けてPRにしたい」のような依頼で使用する。対象テーマや JIRA 課題 ID が引数で渡された場合はそれを対象にする。
+description: 自己流の GitHub Pull Request 作成手順。作業は元ディレクトリを default branch に保ったまま、`.claude/worktrees/` 配下に作る git worktree で行う。worktree の用意・テーマ別の commit 分割・pre-commit 確認・PR テンプレートの探索と記入・title/description の言語選択・作成後の URL 確認・残タスク解消後の draft の扱いの判断までを一貫して行う。「PRを作って」「PR化して」「この変更をPRにして」「branch切ってPR」「draft PRを作成して」「未コミットの変更を分けてPRにしたい」のような依頼で使用する。対象テーマや JIRA 課題 ID が引数で渡された場合はそれを対象にする。
 ---
 
 # 自己流 Pull Request 作成手順
@@ -87,7 +87,10 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 - 作成した PR の URL を `open` コマンドで開き、テンプレート記入・description・課題紐付けを目視確認する。
 - 今回の対象外のテーマの変更が作業ツリーに残っている場合は、今回の PR に含めず、別 PR・別 commit として扱う。
 - 第三者レビューとその指摘対応などの残タスクがすべて片付いたら、作業完了とする。
-- 作業完了時は、依頼者が draft を指定していれば draft のまま終える。指定がないとき、または ready にするよう指示があるときは `gh pr ready <PR番号>` で ready for review にする。
+- 作業完了時の draft の扱いは次の順で決める。
+  - 依頼者から draft / ready の指示があれば、それに従う。
+  - `karia/` 配下のリポジトリなら、`gh pr ready <PR番号>` で ready for review にする。依頼者は ready の PR を確認し、レビューとマージを行う。
+  - それ以外のリポジトリ（`kkhs/` 配下を含む）なら、draft のまま終える。ready for review にするかは依頼者が決める。
 - マージ後の worktree と作業 branch の削除は、依頼者の指示を受けてから `merged-branch-cleanup` の手順で行う。
 
 ## よくある取りこぼし
@@ -108,4 +111,5 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 | テンプレートをルートだけ探す | `.github/` やサブディレクトリも探す |
 | description にコードで分かることを詳述する | ミニマムに保つ |
 | 作成して終わりにする | `open` で URL を開いて確認する |
-| 最初から ready で PR を作る | 常に draft で作り、作業完了時に指定に応じて ready にする |
+| 最初から ready で PR を作る | 常に draft で作り、作業完了時の扱いは (4) に従う |
+| 指示がないまま `karia/` 以外の PR を ready にする | draft のまま終え、依頼者に委ねる |
