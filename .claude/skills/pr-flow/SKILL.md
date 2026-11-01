@@ -1,6 +1,6 @@
 ---
 name: pr-flow
-description: 自己流の GitHub Pull Request 作成手順。作業は元ディレクトリを default branch に保ったまま、`.claude/worktrees/` 配下に作る git worktree で行う。worktree の用意・テーマ別の commit 分割・pre-commit 確認・PR テンプレートの探索と記入・title/description の言語選択・作成後の URL 確認・残タスク解消後の draft の扱いの判断までを一貫して行う。「PRを作って」「PR化して」「この変更をPRにして」「branch切ってPR」「draft PRを作成して」「未コミットの変更を分けてPRにしたい」のような依頼で使用する。対象テーマや JIRA 課題 ID が引数で渡された場合はそれを対象にする。
+description: 自己流の GitHub Pull Request 作成手順。作業は元ディレクトリを default branch に保ったまま、`.claude/worktrees/` 配下に作る git worktree で行う。worktree の用意・テーマ別の commit 分割・pre-commit 確認・PR テンプレートの探索と記入・title/description の言語選択・作成後の URL 確認・残タスク解消後の draft の扱いの判断までを一貫して行う。PR や draft PR の作成、未コミット変更の PR 化を依頼されたときに使用する。対象テーマや JIRA 課題 ID が引数で渡された場合はそれを対象にする。
 ---
 
 # 自己流 Pull Request 作成手順
