@@ -13,7 +13,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 
 - `pwd` で CWD が対象リポジトリのトップかを確認する。ここが**元ディレクトリ**であり、作業後も default branch のまま保つ。git コマンドは素で実行し、`cd <絶対パス> && git ...`・`git -C <パス>`・`GIT_DIR=`/`GIT_WORK_TREE=` によるパス指定はしない（承認プロンプトの発生を避けるため）。
 - 元ディレクトリが default branch（`main`/`master`/`develop` など）にいることを確認する。default 名は決め打ちせず `git symbolic-ref refs/remotes/origin/HEAD` などで確認する。default 以外にいる場合は、元ディレクトリの branch は切り替えない方針のため、依頼者に状況を知らせてから進める。
-- 今回 PR にしたい未コミット変更が元ディレクトリにある場合は `git stash -u -m "pr-flow carry"` で退避する。worktree に未コミット変更は引き継がれないため、後で worktree 側へ持ち込む。
+- 今回 PR にしたい未コミット変更が元ディレクトリにある場合は `git stash push -u -m "pr-flow carry <branch 名>"` で退避し、`git stash list --format='%H %gs'` で当該エントリの SHA を控える。worktree に未コミット変更は引き継がれないため、後で worktree 側へ持ち込む。
 - worktree の中身が元ディレクトリの未コミット変更として現れないよう、worktree を作る前に `git check-ignore .claude/worktrees/` で無視されているかを確認する。照会側にも末尾の `/` を付ける。`.claude/worktrees/` のようなディレクトリ限定パターンは、対象がまだ存在しないと末尾 `/` 無しの引数に一致せず、設定済みでも未設定と誤判定するため。`core.excludesFile` が指すグローバル ignore ファイル（既定は `~/.config/git/ignore`）に記載があれば足りる。通常はこのグローバル設定で賄うため、リポジトリ側の設定は要らない。`.claude/` ごと無視しているリポジトリでも設定は要らない。
   - 無視されていない場合のみリポジトリ側で設定する。worktree を作る前に共通 git dir の `.git/info/exclude` へ書く。commit を挟まずに全 worktree へ効く。
   - `.gitignore` に書くのは、設定自体をリポジトリで共有したい場合に限る。その変更が default branch にマージされるまでは元ディレクトリに ignore 規則が無く、作成済みの `.claude/worktrees/` が未追跡項目として現れるため、`.git/info/exclude` の代わりにはならない。
@@ -29,7 +29,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
   - `cd` は他のコマンドと繋げず単独で実行する。Bash の CWD は呼び出しをまたいで保たれるため、以降の呼び出しに `cd` を付け直す必要はない。
   - worktree は元ディレクトリの配下にあるため、単独 `cd` でも呼び出し終了時に巻き戻されない。
   - セッションの権限ルートと、読み込まれる `CLAUDE.md`・設定は元ディレクトリのまま残る。worktree は同じリポジトリの別 checkout なので、参照される内容は変わらない。
-- 元ディレクトリで退避していれば、worktree 側で `git stash pop` して変更を持ち込む（stash は共通 git dir を共有するため worktree から pop できる）。
+- 元ディレクトリで退避していれば、worktree 側で `git stash apply <SHA>` して変更を持ち込む。適用後に `git stash list` で当該エントリの番号を確かめ、`git stash drop stash@{<番号>}` で消す。stash は共通 git dir を全 worktree と他のセッションが共有するため、スタック先頭を取り出す `git stash pop` は使わない。
 - 今回どの変更を PR にするかを確定する。作業ツリーに複数テーマの変更が混在している場合は、今回の PR 対象テーマだけを扱う。
 
 <details>
@@ -101,7 +101,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 | セッションごと worktree に入るツールで移動する | `git worktree add` で作り、単独 `cd` で移動する |
 | 元ディレクトリの HEAD を基点に worktree を作る | 基点に `origin/<default branch>` を明示する |
 | upstream が default branch を指したまま push する | `git worktree add` に `--no-track` を付ける |
-| 元ディレクトリの未コミット変更を置き去りにする | `git stash -u` で退避し worktree で pop して持ち込む |
+| 元ディレクトリの未コミット変更を置き去りにする | `git stash push -u` で退避し worktree で SHA を指定して apply する |
 | 毎回の Bash 呼び出しに `cd` を付け直す | 単独 `cd` で一度移動すれば以降の呼び出しにも残る |
 | worktree に居たまま削除しようとして失敗する | 先に単独 `cd` で元ディレクトリへ戻ってから削除する |
 | default branch で直接 commit する | worktree の作業 branch で commit する |
