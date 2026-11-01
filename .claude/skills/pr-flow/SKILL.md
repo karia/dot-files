@@ -1,6 +1,6 @@
 ---
 name: pr-flow
-description: 自己流の GitHub Pull Request 作成手順。作業は元ディレクトリを default branch に保ったまま、`.claude/worktrees/` 配下に作る git worktree で行う。worktree の用意・テーマ別の commit 分割・pre-commit 確認・PR テンプレートの探索と記入・title/description の言語選択・作成後の URL 確認・残タスク解消後の ready for review 化までを一貫して行う。「PRを作って」「PR化して」「この変更をPRにして」「branch切ってPR」「draft PRを作成して」「未コミットの変更を分けてPRにしたい」のような依頼で使用する。対象テーマや JIRA 課題 ID が引数で渡された場合はそれを対象にする。
+description: 自己流の GitHub Pull Request 作成手順。作業は元ディレクトリを default branch に保ったまま、`.claude/worktrees/` 配下に作る git worktree で行う。worktree の用意・テーマ別の commit 分割・pre-commit 確認・PR テンプレートの探索と記入・title/description の言語選択・作成後の URL 確認・残タスク解消後の draft の扱いの判断までを一貫して行う。PR や draft PR の作成、未コミット変更の PR 化を依頼されたときに使用する。対象テーマや JIRA 課題 ID が引数で渡された場合はそれを対象にする。
 ---
 
 # 自己流 Pull Request 作成手順
@@ -13,7 +13,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 
 - `pwd` で CWD が対象リポジトリのトップかを確認する。ここが**元ディレクトリ**であり、作業後も default branch のまま保つ。git コマンドは素で実行し、`cd <絶対パス> && git ...`・`git -C <パス>`・`GIT_DIR=`/`GIT_WORK_TREE=` によるパス指定はしない（承認プロンプトの発生を避けるため）。
 - 元ディレクトリが default branch（`main`/`master`/`develop` など）にいることを確認する。default 名は決め打ちせず `git symbolic-ref refs/remotes/origin/HEAD` などで確認する。default 以外にいる場合は、元ディレクトリの branch は切り替えない方針のため、依頼者に状況を知らせてから進める。
-- 今回 PR にしたい未コミット変更が元ディレクトリにある場合は `git stash -u -m "pr-flow carry"` で退避する。worktree に未コミット変更は引き継がれないため、後で worktree 側へ持ち込む。
+- 今回 PR にしたい未コミット変更が元ディレクトリにある場合は `git stash push -u -m "pr-flow carry <branch 名>"` で退避し、`git stash list --format='%H %gs'` で当該エントリの SHA を控える。worktree に未コミット変更は引き継がれないため、後で worktree 側へ持ち込む。
 - worktree の中身が元ディレクトリの未コミット変更として現れないよう、worktree を作る前に `git check-ignore .claude/worktrees/` で無視されているかを確認する。照会側にも末尾の `/` を付ける。`.claude/worktrees/` のようなディレクトリ限定パターンは、対象がまだ存在しないと末尾 `/` 無しの引数に一致せず、設定済みでも未設定と誤判定するため。`core.excludesFile` が指すグローバル ignore ファイル（既定は `~/.config/git/ignore`）に記載があれば足りる。通常はこのグローバル設定で賄うため、リポジトリ側の設定は要らない。`.claude/` ごと無視しているリポジトリでも設定は要らない。
   - 無視されていない場合のみリポジトリ側で設定する。worktree を作る前に共通 git dir の `.git/info/exclude` へ書く。commit を挟まずに全 worktree へ効く。
   - `.gitignore` に書くのは、設定自体をリポジトリで共有したい場合に限る。その変更が default branch にマージされるまでは元ディレクトリに ignore 規則が無く、作成済みの `.claude/worktrees/` が未追跡項目として現れるため、`.git/info/exclude` の代わりにはならない。
@@ -29,7 +29,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
   - `cd` は他のコマンドと繋げず単独で実行する。Bash の CWD は呼び出しをまたいで保たれるため、以降の呼び出しに `cd` を付け直す必要はない。
   - worktree は元ディレクトリの配下にあるため、単独 `cd` でも呼び出し終了時に巻き戻されない。
   - セッションの権限ルートと、読み込まれる `CLAUDE.md`・設定は元ディレクトリのまま残る。worktree は同じリポジトリの別 checkout なので、参照される内容は変わらない。
-- 元ディレクトリで退避していれば、worktree 側で `git stash pop` して変更を持ち込む（stash は共通 git dir を共有するため worktree から pop できる）。
+- 元ディレクトリで退避していれば、worktree 側で `git stash apply <SHA>` して変更を持ち込む。適用後に `git stash list` で当該エントリの番号を確かめ、`git stash drop stash@{<番号>}` で消す。stash は共通 git dir を全 worktree と他のセッションが共有するため、スタック先頭を取り出す `git stash pop` は使わない。
 - 今回どの変更を PR にするかを確定する。作業ツリーに複数テーマの変更が混在している場合は、今回の PR 対象テーマだけを扱う。
 
 <details>
@@ -48,7 +48,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 - commit はなるべく細かい単位に分ける。テーマが複数あれば commit も分ける。
 - commit メッセージ:
   - 1 行に収める（1 行目しか表示されないため）。補足や `Co-Authored-By:` は 2 行目以降に置く。
-  - 複数行を渡すときは実行中の shell の構文に従う。zsh/bash では `-m` を複数指定する。PowerShell の here-string `@'...'@` は zsh で先頭に `@` が混入するため使わない。
+  - 複数行を渡すときは実行中の shell の構文に従う。zsh/bash では `-m` を複数指定する。
   - 言語は、リポジトリが `karia/` 配下なら英語。それ以外は過去の commit メッセージと同じ言語に合わせる。
 - pre-commit:
   - `.pre-commit-config.yaml` があるリポジトリでは、フックがインストール済みか（`.git/hooks/pre-commit` の有無）を確認する。未インストールなら commit 前に `prek install`（無ければ `mise exec -- prek install`）を実行する。
@@ -71,11 +71,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 - テンプレートがある場合はテンプレート通りに記入する。
   - 項目を自己判断で削除しない。記入不要な項目は空欄のまま残す（テンプレートに削除指示がある場合のみ削除する）。
 - JIRA 課題に紐づくなら課題 ID・リンクを PR に付与する。
-- 記述量はミニマムに保つ。例えば、以下の様なことは書かない。
-  - コードを読めば自明なこと
-  - 変更したファイル名や関数名（レビュワーはPRのFile Changesを読むので書く必要がない。概要が肥大化する原因であり不要。）
-  - cspell辞書への追加（PR変更の本筋ではない）
-  - linter・formatterをpassしたことの報告（PRを出す時点で、passしていることは当たり前）
+- 記述量はミニマムに保つ。diffやCIから読み取れることは書かず、変更の本筋に絞る。レビュアーはPRのFile Changesを読むため、変更したファイル名や関数名の列挙は要らない。
 
 ### 実装意図の説明
 
@@ -87,7 +83,10 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 - 作成した PR の URL を `open` コマンドで開き、テンプレート記入・description・課題紐付けを目視確認する。
 - 今回の対象外のテーマの変更が作業ツリーに残っている場合は、今回の PR に含めず、別 PR・別 commit として扱う。
 - 第三者レビューとその指摘対応などの残タスクがすべて片付いたら、作業完了とする。
-- 作業完了時は、依頼者が draft を指定していれば draft のまま終える。指定がないとき、または ready にするよう指示があるときは `gh pr ready <PR番号>` で ready for review にする。
+- 作業完了時の draft の扱いは次の順で決める。
+  - 依頼者から draft / ready の指示があれば、それに従う。
+  - `karia/` 配下のリポジトリなら、`gh pr ready <PR番号>` で ready for review にする。依頼者は ready の PR を確認し、レビューとマージを行う。
+  - それ以外のリポジトリなら、draft のまま終える。ready for review にするかは依頼者が決める。
 - マージ後の worktree と作業 branch の削除は、依頼者の指示を受けてから `merged-branch-cleanup` の手順で行う。
 
 ## よくある取りこぼし
@@ -98,7 +97,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 | セッションごと worktree に入るツールで移動する | `git worktree add` で作り、単独 `cd` で移動する |
 | 元ディレクトリの HEAD を基点に worktree を作る | 基点に `origin/<default branch>` を明示する |
 | upstream が default branch を指したまま push する | `git worktree add` に `--no-track` を付ける |
-| 元ディレクトリの未コミット変更を置き去りにする | `git stash -u` で退避し worktree で pop して持ち込む |
+| 元ディレクトリの未コミット変更を置き去りにする | `git stash push -u` で退避し worktree で SHA を指定して apply する |
 | 毎回の Bash 呼び出しに `cd` を付け直す | 単独 `cd` で一度移動すれば以降の呼び出しにも残る |
 | worktree に居たまま削除しようとして失敗する | 先に単独 `cd` で元ディレクトリへ戻ってから削除する |
 | default branch で直接 commit する | worktree の作業 branch で commit する |
@@ -108,4 +107,5 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 | テンプレートをルートだけ探す | `.github/` やサブディレクトリも探す |
 | description にコードで分かることを詳述する | ミニマムに保つ |
 | 作成して終わりにする | `open` で URL を開いて確認する |
-| 最初から ready で PR を作る | 常に draft で作り、作業完了時に指定に応じて ready にする |
+| 最初から ready で PR を作る | 常に draft で作り、作業完了時の扱いは (4) に従う |
+| 指示がないまま `karia/` 以外の PR を ready にする | draft のまま終え、依頼者に委ねる |
