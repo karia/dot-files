@@ -11,6 +11,7 @@
 !CLAUDE.md
 !README.md
 !mise.toml
+!renovate.json
 !LICENSES/
 LICENSES/*
 !LICENSES/powerlevel10k-MIT.txt
