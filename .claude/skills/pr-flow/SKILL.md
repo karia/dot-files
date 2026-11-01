@@ -48,7 +48,7 @@ description: 自己流の GitHub Pull Request 作成手順。作業は元ディ�
 - commit はなるべく細かい単位に分ける。テーマが複数あれば commit も分ける。
 - commit メッセージ:
   - 1 行に収める（1 行目しか表示されないため）。補足や `Co-Authored-By:` は 2 行目以降に置く。
-  - 複数行を渡すときは実行中の shell の構文に従う。zsh/bash では `-m` を複数指定する。PowerShell の here-string `@'...'@` は zsh で先頭に `@` が混入するため使わない。
+  - 複数行を渡すときは実行中の shell の構文に従う。zsh/bash では `-m` を複数指定する。
   - 言語は、リポジトリが `karia/` 配下なら英語。それ以外は過去の commit メッセージと同じ言語に合わせる。
 - pre-commit:
   - `.pre-commit-config.yaml` があるリポジトリでは、フックがインストール済みか（`.git/hooks/pre-commit` の有無）を確認する。未インストールなら commit 前に `prek install`（無ければ `mise exec -- prek install`）を実行する。
