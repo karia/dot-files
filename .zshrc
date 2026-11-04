@@ -125,6 +125,8 @@ gcd() {
   [[ -n "$selected" ]] && cd "$(ghq root)/$selected"
 }
 
+alias yachiyo='claude --append-system-prompt-file "$(ghq root)/github.com/tsukumijima/YacchoGPT/ヤッチョGPT (for Claude).md"'
+
 case ${OSTYPE} in
   darwin*)
     # for direnv
