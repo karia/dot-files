@@ -17,3 +17,5 @@ skills/*
 !skills/pr-flow/**
 !skills/publishing-k3s-apps/
 !skills/publishing-k3s-apps/**
+!skills/renovate-triage/
+!skills/renovate-triage/**
