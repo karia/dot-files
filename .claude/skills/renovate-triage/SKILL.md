@@ -52,12 +52,12 @@ gh issue list --state open --search '"Dependency Dashboard" in:title' --limit 10
 2. `gh pr checks <PR番号> --watch`でチェック完了を待ち、必須チェックがすべて成功したことを確認する。保留中・失敗中はマージしない。チェックがない場合や必須チェックが見当たらない場合は、ワークフローと必須設定を照合し、未実行を成功扱いしない。
 3. `gh pr review <PR番号> --approve`で承認する。承認できなければ理由を報告して残し、保護ルールを迂回しない。
 4. 通常の方法に応じて`gh pr merge <PR番号> --merge --match-head-commit <確認済みSHA>`を実行する。squashなら`--merge`を`--squash`、rebaseなら`--rebase`に置き換える。先端が変わっていたら差分・CI・承認を確認し直す。
-5. `gh pr view <PR番号> --json state,mergedAt`でマージ済みを確認してから次へ進む。キュー待ちなら完了を待ち、保護ルールの迂回や失敗を無視したマージは行わない。
+5. `gh pr view <PR番号> --json state,mergedAt`でマージ済みを確認してから次へ進む。マージキューに入った場合は完了を待つ。
 
 ### 競合とRenovateによる追従
 
 - 同じバージョン指定ファイルやワークフローの隣接行を更新するPRは、先行PRのマージ後に競合しやすい。
-- Renovateは通常、数分以内に競合したPRをrebaseする。まず`git fetch --prune`とPR情報の再取得で先端SHAを確かめ、Renovateの追従を待つ。
+- 競合したPRはRenovateが自動でrebaseすることが多い。まず`git fetch --prune`とPR情報の再取得で先端SHAを確かめ、Renovateの追従を待つ。
 - 手動で追従する場合は、fetch後に再作成元のリモート先端SHAを記録する。最新の`origin/<default branch>`から専用のローカルブランチを作り、対象PRの意図した変更だけを再作成する。他者のcommitや手動修正を落とさず、差分と必要な検証を確認する。
 - 公開前の確認後、`git push --force-with-lease=refs/heads/<Renovateブランチ>:<記録したSHA> origin HEAD:refs/heads/<Renovateブランチ>`で更新する。
 - `stale info`で拒否されたら、Renovateなどが先に更新した可能性がある。再fetchして差分と先端を確認する。新しいSHAへ機械的に置き換えて再pushせず、更新済みならそのブランチを使う。
