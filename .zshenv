@@ -28,6 +28,8 @@ if [[ -x /opt/homebrew/bin/brew ]] && [[ ":$PATH:" != *":/opt/homebrew/bin:"* ]]
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+source_if_exists /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+
 add_path_if_exists "${HOME}/.local/bin"
 
 # Go
