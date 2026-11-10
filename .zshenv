@@ -21,12 +21,12 @@ add_path_if_exists() {
 
 export EDITOR='vim'
 
-# Homebrew: login shells also set this in .zprofile (to survive macOS
-# /etc/zprofile path_helper reordering), but non-login shells only source
-# .zshenv -- and mise itself lives in Homebrew's bin, so run this before mise.
+# Homebrew: mise itself lives in Homebrew's bin, so run this before mise.
 if [[ -x /opt/homebrew/bin/brew ]] && [[ ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
+
+source_if_exists /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 
 add_path_if_exists "${HOME}/.local/bin"
 
@@ -77,3 +77,5 @@ add_path_if_exists "${HOME}/.rd/bin"
 if [[ ":$PATH:" != *":${HOME}/.local/share/mise/shims:"* ]]; then
   command -v mise >/dev/null 2>&1 && eval "$(mise activate --shims)"
 fi
+
+_zshenv_path=$PATH
