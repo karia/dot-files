@@ -77,7 +77,7 @@ ln -sf ~/ghq/github.com/karia/dot-files/.gitconfig-personal ~/.gitconfig-persona
 
 ### Platform-Specific Configuration
 
-- Contains macOS-specific configurations for MySQL 8.0 and GNU sed
+- Contains macOS-specific configurations for MySQL 8.0
 - Supports both macOS and Linux environments
 
 ## Common Commands

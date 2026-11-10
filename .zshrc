@@ -94,8 +94,9 @@ setopt NO_beep
 #spell check
 setopt correct
 
-#=command -> path of command
-setopt equals
+setopt no_equals
+
+setopt no_nomatch
 
 #"ls -F" at auto_list
 setopt list_types
@@ -131,9 +132,6 @@ case ${OSTYPE} in
   darwin*)
     # for direnv
     command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
-
-    # use GNU sed
-    alias sed='gsed'
 esac
 
 # The next line enables shell command completion for gcloud.
