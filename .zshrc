@@ -131,9 +131,6 @@ case ${OSTYPE} in
   darwin*)
     # for direnv
     command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
-
-    # use GNU sed
-    alias sed='gsed'
 esac
 
 # The next line enables shell command completion for gcloud.
