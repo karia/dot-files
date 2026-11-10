@@ -6,6 +6,7 @@
 !.pre-commit-config.yaml
 !.tmux.conf
 !.vimrc
+!.zprofile
 !.zshenv
 !.zshrc
 !CLAUDE.md
