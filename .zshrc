@@ -94,8 +94,9 @@ setopt NO_beep
 #spell check
 setopt correct
 
-#=command -> path of command
-setopt equals
+setopt no_equals
+
+setopt no_nomatch
 
 #"ls -F" at auto_list
 setopt list_types
