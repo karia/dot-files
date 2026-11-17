@@ -73,6 +73,7 @@
     ]
   },
   "inputNeededNotifEnabled": true,
+  "model": "opus",
   "permissions": {
     "allow": [
       "Bash(actionlint:*)",
