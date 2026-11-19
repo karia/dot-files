@@ -21,6 +21,19 @@ else
   [ -n "$used" ] && second="${second} [context: $(printf '%.0f' "$used")%]"
 fi
 
+limits=$(printf '%s' "$input" | jq -r '
+  def pct(name; w; fmt):
+    w.used_percentage as $p | select($p != null)
+    | (if $p >= 90 then "\u001b[31m" elif $p >= 80 then "\u001b[33m" else "\u001b[32m" end)
+      + "\(name) \($p | round)%\u001b[0m"
+      + (w.resets_at | if . then " (~\(strflocaltime(fmt)))" else "" end);
+  [
+    pct("5h"; .rate_limits.five_hour // {}; "%H:%M"),
+    pct("7d"; .rate_limits.seven_day // {}; "%m/%d %H:%M")
+  ] | join(" ")
+' 2>/dev/null)
+[ -n "$limits" ] && second="${second:+${second} | }${limits}"
+
 if [ -n "$second" ]; then
   printf '%s\n%s' "$line" "$second"
 else
