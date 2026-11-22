@@ -93,7 +93,9 @@ tailscale status --json | jq -r '(.Self | .me = true), (.Peer[] | .me = false) |
 
 ## (3) mise の更新
 
-ホームディレクトリで `mise up 2>&1 | tail -40` を実行する。報告の `旧版 → 新版` は、出力の末尾にある `Upgraded N tools:` の一覧から書く。
+ホームディレクトリで `mise up` を実行し、出力はそのまま pane に流して進み具合の表示を見えるようにしておく。`tail` などのパイプに通すと、終わるまで何も表示されず、遅いのか止まっているのかを見分けられない。
+
+終わったら `herdr pane read <pane> --source recent-unwrapped --lines 60` で出力の末尾を読む。報告の `旧版 → 新版` は、末尾にある `Upgraded N tools:` の一覧から書く。
 
 `mise up` は 1 ホストずつ直列に実行する。どのホストも同じ自宅回線から取得するので、同時に走らせると配布元の rate limit に当たりうる。
 
