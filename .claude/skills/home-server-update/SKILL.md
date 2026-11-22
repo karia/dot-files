@@ -1,6 +1,6 @@
 ---
 name: home-server-update
-description: 自宅の Linux サーバー群を最新化する定例手順。各ホストへ Herdr の pane から ssh し、dot-files の git pull とローカル変更の PR 化、mise 管理ツールの更新（mise up）、Claude Code のマーケットプレイスとプラグインの更新までを行う。Tailscale SSH の認証 URL が出たら依頼者に承認を依頼する。「ホームサーバーを最新化して」「自宅サーバーの mise up して」「<ホスト名> のツールを更新して」のような依頼で使用する。対象ホストが引数で渡された場合はそのホストだけを対象にする。
+description: 自宅の Linux サーバー群を最新化する定例手順。ホストごとに Herdr の tab を開いて ssh し、dot-files の git pull とローカル変更の PR 化、mise 管理ツールの更新（mise up）、Claude Code のマーケットプレイスとプラグインの更新までを行う。Tailscale SSH の認証 URL が出たら依頼者に承認を依頼する。「ホームサーバーを最新化して」「自宅サーバーの mise up して」「<ホスト名> のツールを更新して」のような依頼で使用する。対象ホストが引数で渡された場合はそのホストだけを対象にする。
 ---
 
 # 自宅の Linux サーバー群の最新化手順
@@ -8,7 +8,7 @@ description: 自宅の Linux サーバー群を最新化する定例手順。各
 > [!IMPORTANT]
 > この手順は Herdr 上のセッション（`HERDR_ENV=1`）で、`herdr` skill を使って実行する。Herdr の外で起動されたときは、依頼者に伝えて止まる。
 
-自宅の Linux サーバー群で、dot-files・mise 管理ツール・Claude Code プラグインをまとめて最新化する。各ホストへは Herdr の pane から Tailscale SSH で入り、pane 上でコマンドを実行する。
+自宅の Linux サーバー群で、dot-files・mise 管理ツール・Claude Code プラグインをまとめて最新化する。ホストごとに Herdr の tab を開き、その pane で Tailscale SSH を使ってホストに入り、コマンドを実行する。
 
 ## pane でのコマンド実行
 
@@ -49,8 +49,8 @@ tailscale status --json | jq -r '(.Self | .me = true), (.Peer[] | .me = false) |
 
 ## (1) 接続
 
-1. ホストごとに pane を作る。
-2. 4 列目が `true` のホストは手元のホストで、pane を作った時点でそのシェルに入っている。その pane で直接作業する。
+1. ホストごとに `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$HOME" --label <ホスト> --no-focus` で tab を作る。以降の作業は、返り値の `.result.root_pane.pane_id` の pane で行う。tab を作るのはこの手順の指定であり、現在の tab に pane を作る `herdr` skill の既定より優先する。
+2. 4 列目が `true` のホストは手元のホストで、tab を作った時点でそのシェルに入っている。その pane で直接作業する。
 3. それ以外のホストでは `tailscale ssh <ホスト>` を実行する。`tailscale ssh` は tailnet から取得した鍵でホスト鍵を検証する。素の `ssh` は、初めて接続するホストでホスト鍵の確認に止まる。
 4. `# To authenticate, visit: https://login.tailscale.com/a/...` と出たら、URL を依頼者に伝えて承認を依頼する。承認されるとそのままログインが進む。`--timeout 100000` を付けた `herdr pane wait-output` を、ログインが済むまで繰り返す。Bash ツールの呼び出しの既定の上限は 2 分なので、1 回の待ちはそれより短くする。
 5. ログイン後に `hostname` を実行し、意図したホストに入れたか確かめる。
@@ -142,10 +142,14 @@ setsid -f herdr server >/dev/null 2>&1 </dev/null
 - Herdr サーバー：再起動したか。
 - OS の再起動：必要なホストがあれば添える。
 
+報告に書く情報を各 tab から読み終えたら、(1) で作った tab を `herdr tab close <tab_id>` で閉じてから報告する。`<tab_id>` は (1) の返り値の `.result.tab.tab_id` を使う。依頼者の指示は待たない。ssh 中の tab も、`exit` せずにそのまま閉じてよい。異常を調べている途中のホストの tab は残し、残したことを報告に書く。
+
 ## よくある取りこぼし
 
 | 取りこぼし | 正しくは |
 |---|---|
+| 手順を実行している pane を分割してホスト用の pane を作る | ホストごとに tab を作る。分割すると依頼者が見ている画面が狭くなる |
+| 作った tab を残したまま報告する | 報告の前に閉じる。調査中のホストの tab だけ残す |
 | Bash ツールから直接 `tailscale ssh <ホスト> '<コマンド>'` を実行する | pane から入る。認証 URL の待ちで Bash ツールの呼び出しがタイムアウトする |
 | 認証 URL を放置して待ち続ける | URL を依頼者に伝えて承認を依頼する |
 | 一覧にないホストを対象にする | `tag:home-server` と `tag:wsl` の付いたホストだけを対象にする |
