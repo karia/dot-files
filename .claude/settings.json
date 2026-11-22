@@ -141,5 +141,6 @@
     "command": "bash ~/.claude/statusline-command.sh",
     "type": "command"
   },
+  "switchModelsOnFlag": true,
   "theme": "auto"
 }
