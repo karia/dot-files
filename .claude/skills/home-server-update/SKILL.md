@@ -17,6 +17,7 @@ pane の操作方法は `herdr` skill に従う。コマンドの完了は、コ
 - マーカーには工程名か連番を入れ、コマンドごとに変える。`wait-output` は画面に残っている過去の出力も検索するので、同じマーカーを使い回すと前のコマンドのマーカーにすぐマッチする。
 - 例：`echo __DO""NE_pull__` を実行し、`--match __DONE_pull__` で待つ。
 - マーカーを引用符で分断するのは、入力したコマンド行の表示にマッチさせないためである。
+- 長くかかる待ちは、`--timeout 100000` を付けた `wait-output` を、マーカーが出るまで繰り返す。Bash ツールの呼び出しの既定の上限は 2 分なので、1 回の待ちはそれより短くする。
 
 ## 対象ホスト
 
@@ -52,7 +53,7 @@ tailscale status --json | jq -r '(.Self | .me = true), (.Peer[] | .me = false) |
 1. ホストごとに `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$HOME" --label <ホスト> --no-focus` で tab を作る。以降の作業は、返り値の `.result.root_pane.pane_id` の pane で行う。tab を作るのはこの手順の指定であり、現在の tab に pane を作る `herdr` skill の既定より優先する。
 2. 4 列目が `true` のホストは手元のホストで、tab を作った時点でそのシェルに入っている。その pane で直接作業する。
 3. それ以外のホストでは `tailscale ssh <ホスト>` を実行する。`tailscale ssh` は tailnet から取得した鍵でホスト鍵を検証する。素の `ssh` は、初めて接続するホストでホスト鍵の確認に止まる。
-4. `# To authenticate, visit: https://login.tailscale.com/a/...` と出たら、URL を依頼者に伝えて承認を依頼する。承認されるとそのままログインが進む。`--timeout 100000` を付けた `herdr pane wait-output` を、ログインが済むまで繰り返す。Bash ツールの呼び出しの既定の上限は 2 分なので、1 回の待ちはそれより短くする。
+4. `# To authenticate, visit: https://login.tailscale.com/a/...` と出たら、URL を依頼者に伝えて承認を依頼する。承認されるとそのままログインが進む。ログインが済むまで、「pane でのコマンド実行」の長くかかる待ちと同じ方法で待つ。
 5. ログイン後に `hostname` を実行し、意図したホストに入れたか確かめる。
 
 `tailnet policy does not permit you to SSH to this node` で断られたときは、Tailscale の ACL に、そのタグを宛先とする SSH ルールが足りない。依頼者に伝え、そのホストは飛ばす。
