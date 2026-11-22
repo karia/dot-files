@@ -49,7 +49,7 @@ tailscale status --json | jq -r '(.Self | .me = true), (.Peer[] | .me = false) |
 
 ## (1) 接続
 
-1. ホストごとに `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$HOME" --label <ホスト> --no-focus` で tab を作る。以降の作業は、返り値の `.result.root_pane.pane_id` の pane で行う。
+1. ホストごとに `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$HOME" --label <ホスト> --no-focus` で tab を作る。以降の作業は、返り値の `.result.root_pane.pane_id` の pane で行う。tab を作るのはこの手順の指定であり、現在の tab に pane を作る `herdr` skill の既定より優先する。
 2. 4 列目が `true` のホストは手元のホストで、tab を作った時点でそのシェルに入っている。その pane で直接作業する。
 3. それ以外のホストでは `tailscale ssh <ホスト>` を実行する。`tailscale ssh` は tailnet から取得した鍵でホスト鍵を検証する。素の `ssh` は、初めて接続するホストでホスト鍵の確認に止まる。
 4. `# To authenticate, visit: https://login.tailscale.com/a/...` と出たら、URL を依頼者に伝えて承認を依頼する。承認されるとそのままログインが進む。`--timeout 100000` を付けた `herdr pane wait-output` を、ログインが済むまで繰り返す。Bash ツールの呼び出しの既定の上限は 2 分なので、1 回の待ちはそれより短くする。
