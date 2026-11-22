@@ -8,7 +8,7 @@ description: 自宅の Linux サーバー群を最新化する定例手順。ホ
 > [!IMPORTANT]
 > この手順は Herdr 上のセッション（`HERDR_ENV=1`）で、`herdr` skill を使って実行する。Herdr の外で起動されたときは、依頼者に伝えて止まる。
 
-自宅の Linux サーバー群で、dot-files・mise 管理ツール・Claude Code プラグインをまとめて最新化する。ホストごとに Herdr の tab を開き、その pane から Tailscale SSH で入って、pane 上でコマンドを実行する。
+自宅の Linux サーバー群で、dot-files・mise 管理ツール・Claude Code プラグインをまとめて最新化する。ホストごとに Herdr の tab を開き、その pane で Tailscale SSH を使ってホストに入り、コマンドを実行する。
 
 ## pane でのコマンド実行
 
