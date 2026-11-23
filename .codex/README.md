@@ -6,6 +6,7 @@ that describe intentional, portable preferences belong in Git.
 ## Tracked files
 
 - `config.toml` contains stable user preferences.
+- `yolo.config.toml` is a profile that disables approvals and the sandbox. `codex --profile yolo` layers it on top of `config.toml`, which is equivalent to `--yolo`.
 - `.gitignore` keeps Codex runtime state out of the repository.
 
 Codex can append machine-local state to `config.toml`, including trusted project
